@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.materials.PurchasePriceMapper">
+    <select id="queryQuotationIntegratedEntityClassView" resultType="purchase">
+        select s.pceId,s.te_name applyEmpNo,s.pceDate,teplo.te_name checkEmpNo from (
+        select tp.*,tem.te_name from t_purchase tp,T_EMPLOYEE tem
+        where tp.status = 2
+        and tp.APPLYEMPNO = tem.te_id
+        and tp.pceId not in (
+					select pceId from t_choice_price
+				)
+     	) s,T_EMPLOYEE teplo
+        where s.checkempno = teplo.te_id
+    </select>
+    <select id="queryGoos" parameterType="String" resultType="goods">
+        select tgs.*,tgy.typeName,(s.ACCOUNTNUM+s.APPENDACCOUNTNUM) accountNum from (
+        select tpd.* from t_purchase tpc,t_purchase_details tpd
+        where tpc.pceId =	#{values}
+        and tpc.pceId = tpd.pceId
+        ) s,T_GOODS tgs,T_GOODSTYPE tgy
+        where s.goodsId = tgs.goodsId
+        and tgs.typeId = tgy.typeId
+    </select>
+    <select id="queryMaterialAndQuotation" resultType="materialAndQuotation">
+        select tpp.providerId,tppd.price,tp.proName
+        from t_provider_price tpp,T_PROVIDER_PRICE_DETAIL tppd,t_provider tp
+        where tpp.proprId = tppd.proprId
+        and tppd.goodsId = #{arg1}
+        and tpp.pceId = #{arg0}
+        and tp.providerId = tpp.providerId
+    </select>
+    <insert id="InsertTheSelectedPriceList" parameterType="choicePrice">
+        <selectKey keyProperty="chPriceId" order="AFTER" resultType="String">
+            select 'chPriceId_'||seq_choicePrice.currval from dual
+        </selectKey>
+        insert into t_choice_price values ('chPriceId_'||seq_choicePrice.nextval,#{pceId},1)
+    </insert>
+    <insert id="InsertDetails" parameterType="java.util.List">
+        insert into t_choice_price_detail 
+        select 'cpdId_'||seq_choicePriceDetail.nextval,s.* from (
+        <foreach collection="list" item="item" separator="union all">
+            select #{item.chPriceID},#{item.providerId},#{item.goodsId},#{item.amount},#{item.price} from dual
+        </foreach>
+        ) s
+    </insert>
+    <select id="queryRow" resultType="rowsNumber">
+        select * from (
+        select a.op-b.sd rowNums from (
+        select count(tg.GOODSID) op from t_purchase tpc,t_purchase_details tpd,T_Goods tg
+        where tpc.pceId = #{arg0}
+        and tpc.pceId = tpd.pceId
+        and tg.goodsId = tpd.goodsId
+        ) a,
+        (
+        select count(count(tgs.GOODSID)) sd from t_provider_price tpp,t_provider_price_detail tppr,
+				T_GOODS tgs
+        where tpp.pceId= #{arg0}
+        and tpp.proprId = tppr.proprId
+        and tppr.goodsId = tgs.goodsId
+        group by tgs.goodsId
+        ) b
+        )
+    </select>
+</mapper>

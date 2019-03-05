@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.Examination.Admission_ticket_mapper">
+	<select id="queryAdmission" resultType="com.guigu.common.Examination.Admission_ticket_com">
+	select *from T_STUDENT a, ADMISSION_NUMBER b where b.ADM_ID=#{adm_id} and a.STU_CID=#{stu_cid}
+	</select>
+</mapper>

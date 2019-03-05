@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.info.LeaveMapper">
+	<select id="queryleave" parameterType="java.lang.String" resultType="com.guigu.domain.info.LeaveView">
+			select tw.leave_id,tw.stu_name,tw.leave_starttime,
+			tw.leave_endtime,tw.leave_reason,tw.leave_time,tw.te_name,
+			tw.approver_reason,tw.approver_status,tw.approver_time,tee.te_name,
+			tw.review_status,tw.review_reason,
+			tw.review_time,review_image from 
+			(select tl.Leave_id,tl.stu_id,ts.stu_name,tl.Leave_starttime,
+			tl.Leave_endtime,tl.Leave_reason,tl.Leave_time,te.te_name,
+			tl.Approver_reason,tl.Approver_status,tl.Approver_time,
+			tl.Review_status,tl.Review_reason,
+			tl.Review_time,tl.REVIEW_ID,tl.Review_image
+			from t_leave tl,t_student ts,T_employee te
+			where tl.stu_id=ts.stu_id and tl.approver_id=te.te_id)tw,T_employee tee 
+			where tw.review_id=tee.te_id and tw.stu_id=#{value}
+	</select>
+	
+	<select id="approveleave" parameterType="java.lang.String" resultType="com.guigu.domain.info.LeaveView">
+			select 
+			tl.Leave_id,ts.stu_name,tl.Leave_starttime,
+			tl.Leave_endtime,tl.Leave_reason,tl.Leave_time,tc.tc_name 
+			from t_leave tl,t_student ts,T_employee te,t_classes tc
+			where tl.approver_status='0' and tl.stu_id=ts.stu_id and ts.class_id=tc.tc_id 
+			and tc.te_id=te.te_id and
+			 tc.tc_name in(select 
+			tc.tc_name from T_employee te,t_classes tc
+			where te.te_id=tc.te_id and te.te_id=#{value})
+	</select>
+	
+	<select id="leavexingxi" parameterType="java.lang.String" resultType="com.guigu.domain.info.LeaveView">
+		select leave_starttime,leave_endtime,leave_reason,approver_reason from t_leave where leave_id=#{value}
+	</select>
+	
+	<update id="shenpibaocun" parameterType="com.guigu.domain.info.LeaveView">
+		update t_leave set approver_id=#{te_name},approver_reason=#{approver_reason},
+		approver_status=#{approver_status},approver_time=sysdate where 
+		leave_id=#{leave_id}
+	</update>
+	
+	<select  id="leavexiangxi" parameterType="java.lang.String" resultType="com.guigu.domain.info.LeaveView">
+		select 
+			tl.Leave_id,ts.stu_name,tl.Leave_starttime,
+			tl.Leave_endtime,tl.Leave_reason,tl.Leave_time,te.te_name,
+			tl.approver_reason,tl.approver_status,tl.approver_time,
+			tc.tc_name
+			from t_leave tl,t_student ts,T_employee te,t_classes tc
+			where tl.approver_status!='0' and tl.stu_id=ts.stu_id and ts.class_id=tc.tc_id 
+			and tc.te_id=te.te_id and
+			 tc.tc_name in(select 
+			tc.tc_name from T_employee te,t_classes tc
+			where te.te_id=tc.te_id and te.te_id=#{value})
+	</select>
+	
+	<select id="directorshenpi" parameterType="java.lang.String" resultType="com.guigu.domain.info.LeaveView">
+		select 
+			tl.Leave_id,ts.stu_name,tl.Leave_starttime,
+			tl.Leave_endtime,tl.Leave_reason,tl.Leave_time,te.te_name,
+			tl.approver_time,
+			tc.tc_name 
+			from t_leave tl,t_student ts,T_employee te,t_classes tc
+			where tl.approver_status='1' 
+			and tl.leave_endtime-tl.leave_starttime>5 
+			and tl.review_status='0' 
+			and tl.stu_id=ts.stu_id and ts.class_id=tc.tc_id 
+			and tc.te_id=te.te_id and
+			 tc.tc_name in(select 
+			tc.tc_name from T_employee te,t_classes tc
+			where te.te_id=tc.te_id and te.te_id=#{value})
+	</select>
+	
+	<select id="leavexingxi2" parameterType="java.lang.String" resultType="com.guigu.domain.info.LeaveView">
+		select leave_starttime,leave_endtime,te.te_name,leave_reason,approver_reason 
+		from t_leave tl,t_student ts,T_EMPLOYEE te,T_CLASSES tc
+		where tl.stu_id=ts.stu_id and ts.class_id=tc.tc_id and tc.te_id=te.te_id 
+		and leave_id=#{value}
+	</select>
+	
+	
+	<update id="shenpibaocun2" parameterType="com.guigu.domain.info.LeaveView">
+		update t_leave set review_id=#{te_namee},review_status=#{review_status},
+		review_reason=#{review_reason},
+		review_time=sysdate where leave_id=#{leave_id}
+	</update>
+	
+	<select id="leavexiangxi2" parameterType="java.lang.String" resultType="com.guigu.domain.info.LeaveView">
+		select tw.Leave_id,tw.stu_name,tw.Leave_starttime,
+			tw.Leave_endtime,tw.Leave_reason,tw.Leave_time,tw.te_name,
+			tw.Approver_reason,tw.Approver_status,tw.Approver_time,
+			tee.te_name te_namee,
+			tw.Review_status,tw.Review_reason,
+			tw.Review_time,tw.tc_name from 
+			(select 
+			tl.Leave_id,ts.stu_name,tl.Leave_starttime,
+			tl.Leave_endtime,tl.Leave_reason,tl.Leave_time,te.te_name,
+			tl.Approver_reason,tl.Approver_status,tl.Approver_time,
+			tl.Review_status,tl.Review_reason,
+			tl.Review_time,tl.REVIEW_ID,tc.tc_name
+			from t_leave tl,t_student ts,T_employee te,t_classes tc
+			where tl.review_status!=0 and tl.stu_id=ts.stu_id and ts.class_id=tc.tc_id 
+			and tc.te_id=te.te_id)tw,T_employee tee where
+			tw.review_id=tee.te_id 
+			and tw.tc_name in(select 
+			tc.tc_name from T_employee te,t_classes tc
+			where te.te_id=tc.te_id and te.te_id=#{value})
+	</select>
+</mapper>

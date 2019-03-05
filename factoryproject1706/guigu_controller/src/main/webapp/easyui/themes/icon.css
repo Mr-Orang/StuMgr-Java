@@ -1,0 +1,404 @@
+.icon-blank {
+	background: url('icons/blank.gif') no-repeat center center;
+}
+
+.icon-add {
+	background: url('icons/edit_add.png') no-repeat center center;
+}
+
+.icon-edit {
+	background: url('icons/pencil.png') no-repeat center center;
+}
+
+.icon-remove {
+	background: url('icons/edit_remove.png') no-repeat center center;
+}
+
+.icon-save {
+	background: url('icons/filesave.png') no-repeat center center;
+}
+
+.icon-cut {
+	background: url('icons/cut.png') no-repeat center center;
+}
+
+.icon-ok {
+	background: url('icons/ok.png') no-repeat center center;
+}
+
+.icon-no {
+	background: url('icons/no.png') no-repeat center center;
+}
+
+.icon-cancel {
+	background: url('icons/cancel.png') no-repeat center center;
+}
+
+.icon-reload {
+	background: url('icons/reload.png') no-repeat center center;
+}
+
+.icon-search {
+	background: url('icons/search.png') no-repeat center center;
+}
+
+.icon-print {
+	background: url('icons/print.png') no-repeat center center;
+}
+
+.icon-help {
+	background: url('icons/help.png') no-repeat center center;
+}
+
+.icon-undo {
+	background: url('icons/undo.png') no-repeat center center;
+}
+
+.icon-redo {
+	background: url('icons/redo.png') no-repeat center center;
+}
+
+.icon-back {
+	background: url('icons/back.png') no-repeat center center;
+}
+
+.icon-sum {
+	background: url('icons/sum.png') no-repeat center center;
+}
+
+.icon-tip {
+	background: url('icons/tip.png') no-repeat center center;
+}
+
+.icon-filter {
+	background: url('icons/filter.png') no-repeat center center;
+}
+
+.icon-mini-add {
+	background: url('icons/mini_add.png') no-repeat center center;
+}
+
+.icon-mini-edit {
+	background: url('icons/mini_edit.png') no-repeat center center;
+}
+
+.icon-mini-refresh {
+	background: url('icons/mini_refresh.png') no-repeat center center;
+}
+
+.icon-large-picture {
+	background: url('icons/large_picture.png') no-repeat center center;
+}
+
+.icon-large-clipart {
+	background: url('icons/large_clipart.png') no-repeat center center;
+}
+
+.icon-large-shapes {
+	background: url('icons/large_shapes.png') no-repeat center center;
+}
+
+.icon-large-smartart {
+	background: url('icons/large_smartart.png') no-repeat center center;
+}
+
+.icon-large-chart {
+	background: url('icons/large_chart.png') no-repeat center center;
+}
+
+/*娣诲姞鑷畾涔夊浘鏍�*/
+.icon-cushome3 {
+	background: url('icons/home3.png');
+}
+
+.icon-admin {
+	background: url('icons/administrat.png');
+}
+
+.icon-main_examine {
+	background: url('icons/main_examine.png');
+}
+
+.icon-main_close {
+	background: url('icons/main_close.png');
+}
+
+.icon-main_approve {
+	background: url('icons/main_approve.png');
+}
+
+.icon-main_quote {
+	background: url('icons/main_quote.png');
+}
+
+.icon-main_remove {
+	background: url('icons/main_remove.png');
+}
+
+.icon-main_sbmit {
+	background: url('icons/main_sbmit.png');
+}
+
+.icon-main_empty {
+	background: url('icons/main_empty.png');
+}
+
+.icon-main_queryMaterialInfo {
+	background: url('icons/main_queryMaterialInfo.png');
+}
+
+.icon-main_ok {
+	background: url('icons/main_ok.png');
+}
+
+.icon-main_add {
+	background: url('icons/main_add.png');
+}
+
+.icon-main_batching {
+	background: url('icons/main_batching.png');
+}
+
+.icon-main_Shelves {
+	background: url('icons/main_Shelves.png');
+}
+
+.icon-main_returnGo {
+	background: url('icons/main_returnGo.png');
+}
+
+.icon-main_info {
+	background: url('icons/main_info.png');
+}
+
+.icon-main_shutup {
+	background: url('icons/main_shutup.png');
+}
+
+.icon-main_prices {
+	background: url('icons/main_price selection.png');
+}
+
+.icon-downloadTemplates {
+	background: url('icons/downloadTemplates.png');
+}
+
+.icon-main_Quotationdetails {
+	background: url('icons/main_Quotationdetails.png');
+}
+
+.icon-main_main_matrInfo {
+	background: url('icons/main_matrInfo.png');
+}
+
+.icon-main_Historicalapprovals {
+	background: url('icons/main_Historicalapprovals.png');
+}
+
+.icon-main_Chooseaquote {
+	background: url('icons/main_Chooseaquote.png');
+}
+
+/*渚涜揣绛剧害閫氱煡*/
+.icon-main_SupplysigningNotice {
+	background: url('icons/main_SupplysigningNotice.png');
+}
+
+/*鍒锋柊*/
+.icon-main_reloads {
+	background: url('icons/main_reloads.png') no-repeat center center;
+}
+
+/*鏂伴椈*/
+.icon-main_news {
+	background: url('icons/main_news.png') no-repeat center center;
+}
+
+/*鍏抽棴鏂伴椈*/
+.icon-main_closenews {
+	background: url('icons/main_closenews.png') no-repeat center center;
+}
+
+/*澶╂皵*/
+.icon-main_weather {
+	background: url('icons/main_weather.png') no-repeat center center;
+}
+
+/*閫氱煡鍏憡*/
+.icon-main_notificationannouncement {
+	background: url('icons/main_notificationannouncement.png') no-repeat
+		center center;
+}
+
+/*鎴戠殑寰呭姙*/
+.icon-main_wait_toobedone {
+	background: url('icons/main_wait toobedone.png') no-repeat center center;
+}
+
+/*鎴戠殑鐢宠*/
+.icon-main_applyfor {
+	background: url('icons/main_applyfor.png') no-repeat center center;
+}
+
+/*鎴戠殑鏂囨。*/
+.icon-main_document {
+	background: url('icons/main_document .png') no-repeat center center;
+}
+
+/*鏂板浠撳簱/鍖哄煙/璐ф灦*/
+.icon-warehouseadd {
+	background: url('icons/main_The warehouseadd.png') no-repeat center
+		center;
+}
+
+/*淇敼浠撳簱/鍖哄煙/璐ф灦*/
+.icon-main_Modifythewarehouse {
+	background: url('icons/main_Modifythewarehouse.png') no-repeat center
+		center;
+}
+
+/*涓嬫灦浠撳簱/鍖哄煙/璐ф灦*/
+.icon-main_Warehouseshelves {
+	background: url('icons/main_Warehouseshelves.png') no-repeat center
+		center;
+}
+
+/*
+    鑿滃崟鍥炬爣閮ㄥ垎
+*/
+/*鐗╄祫鐢宠*/
+.icon-menu_Materialapplication {
+	background: url('icons/icon_menu/menu_Materialapplication.png')
+		no-repeat center center;
+}
+
+/*鐗╄祫瀹℃壒*/
+.icon-main_Approvalfmaterials {
+	background: url('icons/icon_menu/main_Approvalfmaterials.png') no-repeat
+		center center;
+}
+
+/*閲囪喘鐢宠*/
+.icon-main_Purchaserequisition {
+	background: url('icons/icon_menu/main_Purchaserequisition.png')
+		no-repeat center center;
+}
+
+/*瀹℃壒閲囪喘*/
+.icon-main_Approvepurchases {
+	background: url('icons/icon_menu/main_Approvepurchases.png') no-repeat
+		center center;
+}
+
+/*閲囪喘閫変环*/
+.icon-main_PurchasepriceSelection {
+	background: url('icons/icon_menu/main_PurchasepriceSelection.png')
+		no-repeat center center;
+}
+
+/*閫変环瀹℃牳*/
+.icon-main_Price {
+	background: url('icons/icon_menu/main_Price SelectionnAudit.png')
+		no-repeat center center;
+}
+
+/*鐗╄祫绠＄悊*/
+.icon-main_MaterialManagement {
+	background: url('icons/icon_menu/main_MaterialManagement.png') no-repeat
+		center center;
+}
+
+/*绫诲瀷绠＄悊*/
+.icon-main_Type {
+	background: url('icons/icon_menu/main_Type management.png') no-repeat
+		center center;
+}
+
+/*渚涘簲鍟嗗彲渚涚墿璧�*/
+.icon-main_Supplierscansupplymaterials {
+	background: url('icons/icon_menu/main_Supplierscansupplymaterials.png')
+		no-repeat center center;
+}
+
+/*渚涘簲鍟嗘姤浠�*/
+.icon-main_SupplierQuotation {
+	background: url('icons/icon_menu/main_SupplierQuotation .png') no-repeat
+		center center;
+}
+
+/*鍚堝悓绠＄悊*/
+.icon-main_Contractmanagement {
+	background: url('icons/icon_menu/main_Contractmanagement.png') no-repeat
+		center center;
+}
+
+/*鑿滃崟鍒楄〃*/
+.icon-main_menuIcon {
+	background: url('icons/icon_menu/main_menuIcon.png') no-repeat center
+		center;
+}
+
+/*渚涘簲鍟嗙鐞�*/
+.icon-main_suppliermanagement {
+	background: url('icons/icon_menu/main_suppliermanagement.png') no-repeat
+		center center;
+}
+
+/*渚涘簲鍟嗕俊鎭慨鏀�*/
+.icon-main_informationchanges {
+	background: url('icons/icon_menu/main_informationchanges.png') no-repeat
+		center center;
+}
+
+/*渚涘簲鍟嗗瘑鐮佷慨鏀�*/
+.icon-main_changepassword {
+	background: url('icons/icon_menu/main_changepassword.png') no-repeat
+		center center;
+}
+
+/*浠撳簱淇℃伅绠＄悊*/
+.icon-main_Warehouse {
+	background:
+		url('icons/icon_menu/main_Warehouse information management.png')
+		no-repeat center center;
+}
+
+/*浠撳簱鍖哄煙绠＄悊*/
+.icon-main_Warehouseareamanagement {
+	background: url('icons/icon_menu/main_Warehouseareamanagement.png')
+		no-repeat center center;
+}
+
+/*浠撳簱璐ф灦绠＄悊*/
+.icon-main_Shelf {
+	background: url('icons/icon_menu/main_Shelf management.png') no-repeat
+		center center;
+}
+/*菜单用户管理图标*/
+.icon-menuUser{
+	background: url('icons/icon_menu/menuUser.png') no-repeat center center;
+}
+.icon-menuMenu{
+	background: url('icons/icon_menu/menuMenu.png') no-repeat center center;
+}
+.icon-menuRole{
+	background: url('icons/icon_menu/menuRole.png') no-repeat center center;
+}
+.icon-menuDept{
+	background: url('icons/icon_menu/menuDept.png') no-repeat center center;
+}
+.icon-menuPassword{
+	background: url('icons/icon_menu/menuPassword.png') no-repeat center center;
+}
+.icon-menuJournal{
+	background: url('icons/icon_menu/menuJournal.png') no-repeat center center;
+}
+.icon-menuAuthority{
+	background: url('icons/icon_menu/menuAuthority.png') no-repeat center center;
+}
+
+
+/*采购入库*/
+.icon-menu_procurementstorage {
+	background: url('icons/icon_menu/menu_procurementstorage.png') no-repeat
+		center center;

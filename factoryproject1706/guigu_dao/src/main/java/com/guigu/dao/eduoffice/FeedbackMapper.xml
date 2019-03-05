@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.guigu.dao.eduoffice.FeedbackMapper">
+	<!-- 加载下拉框角色信息 -->
+	<select id="loadFeedSelect" resultType="com.guigu.domain.authority.vo.RoleVO">
+				select role_id,role_name from t_role where role_name='校长' or role_name='教导主任' or role_name='教务员' or role_name='老师'
+	</select>
+</mapper>

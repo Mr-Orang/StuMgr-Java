@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.info.StustuInfoMapper">
+	<!-- 根据学生学号查询学生基本信息 -->
+	<select id="querybystuid" parameterType="String"
+		resultType="com.guigu.domain.info.StudentInfo">
+		select tstu.stu_id stuid,tstu.stu_name stuname,tstu.stu_sex
+		stusex,tstu.stu_birthday stubirthday ,
+		tstu.stu_cid,tstu.stu_phone stuphone,tstu.par_phone parphone,tstu.address address,tcla.tc_name
+		classid,
+		tdor.tdm_number apartmentid,tstu.stu_status stustatus,tstu.school school,tstu.rou_id
+		rouid from t_student tstu,
+		t_classes tcla,t_dorm tdor where tstu.class_id=tcla.tc_id and
+		tstu.apartment_id=tdor.tdm_id and tstu.stu_id=#{value}
+
+	</select>
+	<!-- 根据条件查询该班学生基本信息 -->
+	<select id="querybyclassid" parameterType="StudentInfo"
+		resultType="com.guigu.domain.info.StudentInfo">
+		select tstu.stu_id stuid,tstu.stu_name stuname,tstu.stu_sex
+		stusex,tstu.stu_birthday stubirthday ,
+		tstu.stu_cid,tstu.stu_phone stuphone,tstu.par_phone parphone,tstu.address address,tcla.tc_name
+		classid,
+		tdor.tdm_number apartmentid,tstu.stu_status stustatus,tstu.school school,tstu.rou_id
+		rouid from t_student tstu,
+		t_classes tcla,t_dorm tdor where tstu.class_id=tcla.tc_id and
+		tstu.apartment_id=tdor.tdm_id and tstu.class_id in (select tc.tc_id from t_employee te,t_classes tc where te.te_id= tc.te_id and te.te_id=#{teid})
+<if test="stuid!=null and stuid!=''">
+and tstu.stu_id =#{stuid}
+</if>
+<if test="stuname!=null and stuname!=''">
+and tstu.stu_name =#{stuname}
+</if>
+<if test="stusex!=null and stusex!=''">
+and tstu.stu_sex =#{stusex}
+</if>
+<if test="apartmentid!=null and apartmentid!=''">
+and tstu.tdm_number =#{apartmentid}
+</if>
+<if test="classid!=null and classid!=''">
+and tstu.tc_name =#{classid}
+</if>
+
+	</select>
+	<!-- 查询所有班级 -->
+	<select id="querybyallclass" parameterType="String"
+		resultType="com.guigu.domain.info.Stuclass">
+		select tc.tc_id id,tc.tc_name text from t_classes tc
+	</select>
+	<!-- 查询所有宿舍 -->
+	<select id="querybyalldorm" parameterType="String"
+		resultType="com.guigu.domain.info.Studorm">
+		select td.tdm_id id,td.tdm_number text from t_dorm td
+	</select>
+	<!-- 根据学号查询学生基本信息 -->
+	<select id="querybyupstuid" parameterType="String"
+		resultType="com.guigu.domain.info.StudentInfo">
+		select ts.stu_id stuid,ts.stu_name stuname,ts.stu_sex
+		stusex,
+		ts.stu_birthday stubirthday,ts.stu_cid stucid,ts.stu_phone
+		stuphone,
+		ts.par_phone parphone,ts.address address,ts.class_id classid,
+		ts.apartment_id apartmentid,ts.stu_status stustatus,ts.school school,
+		ts.rou_id rouid from t_student ts where ts.stu_id=#{value}
+	</select>
+	<!-- 修改学生 -->
+	<update id="updatestudentinfo" parameterType="com.guigu.domain.info.StudentInfo">
+		update t_student
+		set stu_name=#{stuname},stu_sex=#{stusex},
+		stu_birthday=to_date(#{stubirthday},'yyyy-MM-dd'),stu_cid=#{stucid},
+		stu_phone=#{stuphone},par_phone=#{parphone},address=#{address},class_id=#{classid}
+		,apartment_id=#{apartmentid},stu_status=#{stustatus},school=#{school} where stu_id=#{stuid}
+	</update>
+	<delete id="deletebystuid" parameterType="String">
+	delete t_student where
+	stu_id=#{value}
+	</delete>
+</mapper>

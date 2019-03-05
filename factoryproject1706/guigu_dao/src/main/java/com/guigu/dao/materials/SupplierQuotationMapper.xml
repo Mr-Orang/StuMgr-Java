@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.materials.SupplierQuotationMapper">
+	<select id="queryGoods" resultType="purchase" parameterType="String">
+		<!-- 要求：如果该采购单中没有一个物资可供该供应商报价，则不显示 -->
+		select DISTINCT gos.* from (
+		<!-- 采购信息表：查询采购信息表中已经通过审核，并且该供应商没有报过价的采购单 -->
+		select tp.pceId pceId,tp.pceDate from t_purchase tp
+		where tp.pceId not in (
+		<!-- 供货商报价表：查询该供货商报过价的采购单id -->
+		select pceId from T_PROVIDER_PRICE
+		where providerId = #{arg0}
+		) and tp.STATUS = 2
+		) gos,
+		t_purchase_details tpd
+		<!-- 采购明细表：采购Id要与上面的采购Id相同 -->
+		where gos.pceId = tpd.pceId
+		<!-- 判断采购明细表中的采购Id需要存在于这个供应商可供物资明细表中 -->
+		and tpd.goodsId in (
+		select tpg.goodsId from t_provider tp,t_provider_goods tpg
+		where tp.providerId = tpg.providerId
+		and tp.providerId = #{arg0}
+		)
+	</select>
+	<select id="queryGoodsUser" resultType="goods">
+		select go.*,tgp.TYPEName from (
+		<!-- 供应商可供应的物资 -->
+		select tgs.* from t_provider_goods tpg,T_GOODS tgs
+		where PROVIDERID = #{arg1}
+		and tpg.GOODSID = tgs.GOODSID
+		INTERSECT
+		<!-- 该采购单物资 -->
+		select tgs.* from t_purchase_details tpd,T_GOODS tgs
+		where tpd.pceId = #{arg0}
+		and tpd.goodsId = tgs.goodsId
+		) go,T_GOODSTYPE tgp
+		where go.TYPEID = tgp.TYPEID
+	</select>
+	<!-- 插入报价表 -->
+	<insert id="insertPriPrice" parameterType="providerPrice">
+		<selectKey order="AFTER" resultType="String"
+			keyProperty="proprId">
+			select 'proprId_'||seq_providerPrice.currval from dual
+		</selectKey>
+		insert into t_provider_price
+		values('proprId_'||seq_providerPrice.nextval,#{pceId},#{providerId},1)
+	</insert>
+	<!-- 插入明细 -->
+	<insert id="insertPrigPrce" parameterType="java.util.List">
+		insert into t_provider_price_detail
+		select 'prodde_'||seq_providerPriceDetail.nextval,s.* from (
+		<foreach collection="list" separator="union all" item="item">
+			select #{item.properId},#{item.goodsId},#{item.price} from dual
+		</foreach>
+		) s
+	</insert>
+	<!-- 查询签约成功的供货情况 -->
+	<select id="queryProtocalDetail" parameterType="String" resultType="protocalDetail">
+		select tpd.protId,tp.pceId protdId,tpd.conSum
+		from t_protocal_detail tpd,t_protocal tp
+		where tpd.status = 0
+		and tpd.providerId = #{values}
+		and tp.protId = tpd.protId
+	</select>
+	<!-- 查询合同中物资数量和单价 -->
+	<select id="queryChoicePriceDetail" resultType="choicePriceDetail">
+		select gos.*,tg.description chPriceID from (
+		select tcpd.goodsId,tcpd.amount,tcpd.price
+		from t_choice_price tcp,t_choice_price_detail tcpd
+		where tcp.chPriceId = tcpd.chPriceId
+		and tcp.pceId = #{arg0}
+		and tcpd.providerId = #{arg1}
+		) gos,t_goods tg
+		where gos.goodsId = tg.goodsId
+	</select>
+</mapper>

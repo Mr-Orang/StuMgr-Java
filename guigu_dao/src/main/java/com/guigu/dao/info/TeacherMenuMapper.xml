@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.info.TeacherMenuMapper">
+	<!-- 根据账户查询菜单 -->
+	<select id="queryMenuByAccount" parameterType="String" resultType="com.guigu.domain.info.Menus">
+		select distinct(tm.menu_id),tm.menu_name,tm.menu_url,tm.menuiconcls,tm.menu_parent_id,tm.status,tm.model_id from t_account ta,
+		t_account_role tar,t_role_menu trm,t_menu tm
+		where ta.account=#{account}
+		and tar.acc_id=ta.account
+		and tar.role_id=trm.role_id
+		and tm.menu_id=trm.menu_id
+		and tm.menu_parent_id='0'
+	</select>
+	
+	<!-- 根据账户与父名称查询菜单 -->
+	<select id="queryMenuByParentName" resultType="MenuView">
+		select distinct(tm.menu_id) id,tm.menu_name text,tm.menu_url,tm.menuiconcls,tm.menu_parent_id,tm.status,tm.model_id from t_account ta,
+		t_account_role tar,t_role_menu trm,t_menu tm
+		where ta.account=#{account}
+		and tar.acc_id=ta.account
+		and tar.role_id=trm.role_id
+		and tm.menu_id=trm.menu_id
+		and tm.menu_parent_id in 
+    (select menu_id from t_menu where menu_name=#{text})
+	</select>
+	
+</mapper>

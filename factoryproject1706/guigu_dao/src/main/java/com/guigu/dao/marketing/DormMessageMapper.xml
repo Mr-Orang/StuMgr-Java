@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.marketing.DormMessageMapper">
+	<!-- 查询所有市场人员统计招生情况 -->
+	<select  id="quereyDormMessages" resultType="com.guigu.common.marketing.DormMessage">
+   		select 	td.TDM_ID,td.TDM_NUMBER,td.TDM_BED,td.TDM_NOWBED,td.TDM_STATE,tdt.TDM_TYPENAME 	
+   		from t_dorm td INNER JOIN  t_dormtype tdt ON td.TDM_TYPEID=tdt.TDM_TYPEID 
+   		<where>
+			<if test="tdm_id!=null and tdm_id!=''">
+				and td.tdm_id=#{tdm_id}
+			</if>
+			<if test="tdm_number!=null and tdm_number!=''">
+				and td.tdm_number like '%${tdm_number}%'
+			</if>
+			<if test="tdm_bed!=null and tdm_bed!='' ">
+				and td.tdm_bed like '%${tdm_bed}%'
+			</if>
+			<if test="tdm_nowbed!=null and tdm_nowbed!='' ">
+				and td.tdm_nowbed like '%${tdm_nowbed}%'
+			</if>
+			<if test="tdm_state!=null and tdm_state!=''">
+				and td.tdm_state like '%${tdm_state}%'
+			</if>
+			<if test="tdm_typename!=null and tdm_typename!=''">
+				and tdt.tdm_typename like '%${tdm_typename}%'
+			</if>
+   		 </where>
+	      		order by tdm_id
+	</select>
+	<!-- 查询宿舍楼层信息 -->
+	<select id="queryDromFloor" resultType="com.guigu.domain.marketing.DormFloor">
+   		select * from t_dorm_floor
+	</select>
+	<insert id="addDormMessages" parameterType="com.guigu.domain.marketing.Dorm">
+		<!-- insert into t_dorm values ('tdm'||t_dorm_seq.NEXTVAL,#{tdm_number},#{tdm_bed},#{tdm_nowbed},#{tdm_state},#{tdm_typeID})-->
+		insert into t_dorm values ('tdm'||t_dorm_seq.NEXTVAL,#{tdm_number},#{tdm_bed},0,#{tdm_state},#{tdm_typeID})
+	</insert>
+	<!-- 查询宿舍床位 -->
+	<select id="queryDromFloorBeD" resultType="com.guigu.domain.marketing.DormFloor">
+		select * from T_DORM_FLOOR
+	</select>
+</mapper>

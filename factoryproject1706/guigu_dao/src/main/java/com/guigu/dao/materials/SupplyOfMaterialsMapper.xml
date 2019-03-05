@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.guigu.dao.materials.SupplyOfMaterialsMapper">
+	<!-- 供应商可供物资 -->
+	<select id="querySupplierGoods" parameterType="String" resultType="goods">
+		select tgs.*,tgt.TYPENAME from t_provider_goods tpd,T_GOODS
+		tgs,T_GOODSTYPE
+		tgt
+		where tpd.GOODSID = tgs.GOODSID
+		and
+		tgt.TYPEID=tgs.TYPEID
+		and tpd.PROVIDERID = #{values}
+		order by
+		tgs.GOODSID
+	</select>
+	<!-- 查询可供应的物资信息 -->
+	<select id="queryGoods" resultType="goods">
+		select tg.*,tgp.typeName from T_GOODS tg,T_GOODSTYPE tgp
+		where
+		tg.TYPEID = tgp.typeId
+		and tg.status=0
+		<!-- 查询该供应商可供物资 -->
+		and tg.goodsId not in (
+		select goodsId from t_provider_goods where
+		providerId = #{arg0}
+		)
+		order by tg.GOODSID
+	</select>
+	<!-- 添加供应物资信息 -->
+	<insert id="addSupplies" parameterType="java.util.List">
+		insert into t_provider_goods
+		select
+		('proGoodId_'||seq_provider_goods.nextval),s.* from (
+		<foreach collection="list" item="item" separator="union all">
+			select
+			#{item.brand},#{item.goodsId} from dual
+		</foreach>
+		) s
+	</insert>
+	<select id="queryIsGoods" resultType="goods">
+		select tg.* from
+		t_provider_goods tpg,T_GOODS tg
+		where tpg.PROVIDERID = #{arg1}
+		and
+		tpg.GOODSID = #{arg0}
+		and tg.GOODSID = tpg.GOODSID
+	</select>
+	<delete id="removalOfSuppliesAvailable">
+		delete from t_provider_goods
+		where PROVIDERID =
+		#{arg1}
+		and GOODSID = #{arg0}
+	</delete>
+</mapper>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.materials.StoreManagementMapper">
+	<!-- 查询仓库信息 -->
+	<select id="queryStore" resultType="store">
+		select * from t_store order
+		by storeId
+	</select>
+	<!-- 查询仓库区域 -->
+	<select id="queryStoreArea" resultType="storeArea">
+		select * from
+		t_store_area where storeId = #{arg0}
+	</select>
+	<!-- 查询全部区域信息 -->
+	<select id="queryStoreAreaAll" resultType="storeArea">
+		select * from
+		t_store_area
+	</select>
+	<!-- 查询货架 -->
+	<select id="queryStoreAreaPosition"
+		resultType="storeAreaPosition">
+		select ts.*
+		from t_store_area_position ts
+		where ts.areaId
+		=#{arg0}
+	</select>
+	<!-- 查询全部货架信息 -->
+	<select id="queryStoreAreaPositionAll"
+		resultType="storeAreaPosition">
+		select * from t_store_area_position
+	</select>
+	<!-- 查询货架类型 -->
+	<select id="queryStoreAreaPositionGoodsType"
+		resultType="storeAreaPositionGoodsType">
+		select tg.typeName sapPositionId
+		from
+		store_area_position_goodsType sa,t_goodsType tg
+		where
+		sa.sap_goodsTypeId = tg.typeId
+		and SAP_POSITIONID = #{arg0}
+	</select>
+	<!-- 验证仓库名称是否有效 -->
+	<select id="verifyThatTheWarehouseNameIsUseful"
+		resultType="store">
+		select * from t_store where address = #{arg0}
+	</select>
+	<!-- 保存仓库信息 -->
+	<insert id="SaveWarehouseInformation">
+		insert into t_store
+		values('storeId_'||seq_store.nextval,#{arg0},0)
+	</insert>
+	<!-- 验证区域名是否可用 -->
+	<select id="AddWarehouseInformation" resultType="storeArea">
+		<!-- 哪个仓库的哪个区域？ -->
+		select * from t_store_area where storeId = #{arg1} and areaName =
+		#{arg0}
+	</select>
+	<!-- 保存区域 -->
+	<insert id="addedAreaStr">
+		insert into t_store_area values
+		('areaId_'||seq_store_area.nextval,#{arg1},#{arg2},#{arg0},null,0)
+	</insert>
+	<!-- 验证货架名称是否有效 -->
+	<select id="isStoreArea" resultType="StoreAreaPosition">
+		select * from
+		t_store_area_position where areaId = #{arg0} and positionName
+		= #{arg1}
+	</select>
+	<!-- 查询区域容量信息 -->
+	<select id="queryAreaCapacityInformation" resultType="storeArea">
+		select
+		(areaCount-posiCount) areaCount from
+		(select areaCount from
+		t_store_area where areaId = #{arg0}) areaCount,
+		(select nvl(sum
+		(positionCount),0) posiCount from
+		t_store_area_position where areaId =
+		#{arg0}) posiCount
+	</select>
+	<!-- 添加货架 -->
+	<insert id="insertAddShelf" parameterType="storeAreaPosition">
+		<selectKey resultType="String" order="AFTER"
+			keyProperty="positionId">
+			select 'positionId_'||seq_store_area_position.currval
+			from dual
+		</selectKey>
+		insert into t_store_area_position
+		values('positionId_'||seq_store_area_position.nextval,#{positionName},#{positionCount},#{areaId},null,0,0)
+	</insert>
+	<!-- 添加货架关联类型表 需要返回受影响行数 -->
+	<insert id="shelfAndGoodsType" parameterType="java.util.List">
+		insert into store_area_position_goodsType
+		select
+		('sapId_'||seq_sap_goodsType.nextval),s.* from (
+		<foreach collection="list" item="item" separator="union all">
+			select
+			#{item.sapPositionId},#{item.sapGoodsTypeId} from dual
+		</foreach>
+		) s
+	</insert>
+	<!-- 查询仓库信息 -->
+	<select id="queryStoresone" resultType="store">
+		select address,status,a.a
+		storeId from T_STORE ts,
+		(select count(*) a from t_store_area where
+		storeId = #{arg0} and status =0) a
+		where storeId = #{arg0}
+	</select>
+	<!-- 查询仓库区域信息 -->
+	<select id="queryStoreAreaOne" resultType="storeArea">
+		select
+		ts.areaId,ts.areaname,ts.areacount,ts.status,a.a typeId,b.b storeId
+		from
+		t_store_area ts,(
+		select count(*) a from t_store_area_position
+		where
+		areaId = #{arg0} and status = 0
+		) a,(
+		select SUM(POSITIONCOUNT) b
+		FROM T_STORE_AREA_POSITION WHERE AREAID =
+		#{arg0} AND STATUS = 0
+		) b
+		where areaId = #{arg0}
+	</select>
+	<!-- 查询货架信息 -->
+	<select id="queryStoreAreaPositionOne"
+		resultType="storeAreaPosition">
+		select
+		POSITIONNAME,POSITIONCOUNT,POSITIONNUMBER,typeId,STATUS,g.y areaId
+		from t_store_area_position,(
+		select a.a-b.b y from (
+		select areacount a
+		from T_STORE_AREA
+		where areaId in
+		(
+		select areaId from t_store_area_position where POSITIONID = #{arg0}
+		)
+		) a,(
+		select sum(positioncount) b from t_store_area_position
+		where areaId in
+		(
+		select areaId from t_store_area_position where POSITIONID = #{arg0}
+		) and
+		POSITIONID != #{arg0}
+		) b
+		) g where POSITIONID = #{arg0}
+	</select>
+	<!-- 仓库信息修改提交 -->
+	<update id="warehouseinformationmodificationsubmission"
+		parameterType="store">
+		update t_store set address = #{address},status=#{status}
+		where storeId = #{storeId}
+	</update>
+	<!-- 区域信息修改提交 -->
+	<update id="areainformationmodificationsubmission"
+		parameterType="storeArea">
+		update T_STORE_AREA set areaName =
+		#{areaName},areacount= #{areaCount},status =#{status} where areaId =
+		#{areaId}
+	</update>
+	<!-- 修改货架信息 -->
+	<update id="shelfInformationModification" parameterType="storeAreaPosition">
+		update T_STORE_AREA_POSITION set POSITIONNAME = #{positionName},POSITIONCOUNT = #{positionCount},POSITIONNUMBER =#{positionNumber},typeId=#{typeId},status = #{status} 
+		where POSITIONID = #{positionId}
+	</update>
+</mapper>

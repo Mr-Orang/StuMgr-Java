@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.curriculum.CourseInfoMapper">
+	<!-- 加载下拉框课程数据 -->
+	<select id="loadSelectCourseInfo" resultType="com.guigu.domain.curriculum.CourseInfo">
+		select * from
+		t_course_info
+	</select>
+	<select id="loadSelectCourseInfoByEmpId"  resultType="com.guigu.domain.eduoffice.vo.CourseInfoVo">
+		select ci.TC_CID,ci.tc_cname  from T_EMP_COURSE ec,t_course_info ci 
+			where ec.TC_CID=ci.TC_CID and ec.EMP_ID=#{0}
+	</select>
+
+	<!-- 查询所有课程的显示信息 -->
+	<select id="queryAllCourseInfo" parameterType="com.guigu.domain.curriculum.vo.Course_search"
+		resultType="com.guigu.domain.curriculum.vo.Course_showInfo">
+		select
+		t_c_i.TC_CID,t_c_i.TC_CNAME,t_c_i.TC_CNUMBER,t_c_i.TC_CDATE,t_s_c.TC_SNAME,t_c_i.tc_cdescribe,t_c_i.TC_CSTATUS
+		from t_course_info t_c_i,t_stage_course t_s_c,t_course_stage t_c_s
+		<where>
+			t_c_i.TC_CID=t_c_s.TC_CID and t_c_s.tc_sid=t_s_c.TC_SID
+			<if test="sid!=null and sid!=''">
+				and t_s_c.tc_sid=#{sid}
+			</if>
+			<if test="cstatus!=-1">
+				and t_c_i.TC_CSTATUS=#{cstatus}
+			</if>
+			<if test="cname!=null and cname!=''">
+				and t_c_i.TC_CNAME like concat(concat('%', #{cname}), '%')
+			</if>
+			<if test="sdate!=null and sdate!=''">
+				and tc_cdate>=to_date(#{sdate},'yyyy-mm-dd')
+			</if>
+			<if test="edate!=null and edate!=''">
+			<![CDATA[
+              and tc_cdate<=to_date(#{edate},'yyyy-mm-dd')+1
+            ]]>
+
+			</if>
+		</where>
+	</select>
+	
+	<!-- 根据课程编号查、查询该课程所有信息 -->
+	<select id="queryCourseInfoById" parameterType="java.lang.String" resultType="com.guigu.domain.curriculum.vo.Course_detailInfo">
+		select	t_c_i.*,t_s_c.TC_SNAME,t_e.TE_NAME 
+		from t_course_info t_c_i,t_stage_course t_s_c,t_course_stage t_c_s,t_employee t_e  
+		where	t_c_i.TC_CID=t_c_s.TC_CID and t_c_s.tc_sid=t_s_c.TC_SID 
+		and t_c_i.te_id=t_e.te_id and t_c_i.TC_CID=#{value}
+	</select>
+	
+	<!-- 根据课程编号查询出该课程所有章节信息 -->
+	<select id="querySectionsByCourseId" parameterType="java.lang.String" resultType="com.guigu.domain.curriculum.Course_section" >
+		select * from t_course_section where TC_CID=#{value}
+	</select>
+	
+	<!-- 删除课程(逻辑删除，修改课程状态为1) -->
+	<update id="deleteCourseById" parameterType="java.lang.String">
+		update t_course_info set tc_cstatus=1 where tc_cid=#{value}
+	</update>
+	
+	<!-- 根据客户端提交的课程信息进行修改 -->
+	<update id="updateCourseInfoById" parameterType="com.guigu.domain.curriculum.vo.Course_detailInfo">
+		update T_COURSE_INFO set 
+		tc_cname=#{tc_cname},TC_CALIAS=#{tc_calias},TC_CDESCRIBE=#{tc_cdescribe},TC_COUTLINE=#{tc_coutline},TC_CSTATUS=#{tc_cstatus} 
+		where tc_cid=#{tc_cid}
+	</update>
+	
+	<!-- 修改课程的教学大纲 -->
+	<update id="updateCoutlineById" parameterType="java.lang.String" >
+		update T_COURSE_INFO set TC_COUTLINE=#{1} where TC_CID=#{2}
+	</update>
+	
+	<!-- 修改课程的所属阶段 -->
+	<update id="updateCourseStageById" parameterType="java.lang.String">
+		update T_COURSE_STAGE set TC_SID=#{1} where TC_CID=#{2}
+	</update>
+	
+	<!-- 删除某个课程的章节(逻辑删除:修改状态) -->
+	<update id="deleteCourseSectionById" parameterType="java.lang.String">
+		update t_course_section set TC_CHSTATUS=1 where TC_CHID=#{value}
+	</update>
+	
+	<!-- 添加课程信息 -->
+	<insert id="addCouseInfo" parameterType="com.guigu.domain.curriculum.vo.Course_addInfo">
+		insert into T_COURSE_INFO values(concat('course00',t_course_info_seq.nextval),#{tc_cname},0,#{tc_calias},#{tc_cdescribe},#{tc_coutline},2,sysdate,#{te_id})
+	</insert>
+	
+	<!-- 添加课程的阶段信息 -->
+	<insert id="addCourseStage" parameterType="java.lang.String">
+		insert into t_course_stage values(concat('cs0',t_course_stage_seq.nextval),concat('course00',t_course_info_seq.currval),#{value})
+	</insert>
+</mapper>

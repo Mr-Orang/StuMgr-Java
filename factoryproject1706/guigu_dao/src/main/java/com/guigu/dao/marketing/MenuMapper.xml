@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.guigu.dao.marketing.MenuMapper">
+<!-- 查询父菜单 -->
+<select id="queryMenu" resultType="com.guigu.domain.marketing.Menu">
+	select distinct(menu_id) id,menu_name text,menu_url url,MENUICONCLS,menu_parent_id pid,status  from T_MENU where menu_Id in
+		(
+		select DISTINCT menu_Id from T_ROLE_MENU where role_Id in (
+		select ta.role_Id from t_account t,t_account_role ta,T_ROLE tr
+		where t.account = ta.acc_id
+		and tr.role_id = ta.role_Id
+		and tr.status = 0
+		and t.account = #{account}))
+		and status = 0
+		and menu_parent_id = '0'
+		and model_id='modelId_1005'
+</select>
+
+<!-- 查询子菜单 -->
+<select id="queryMenuByName"  resultType="com.guigu.domain.marketing.Menu">
+	select  distinct(menu_id) id,menu_name text,menu_url url,MENUICONCLS,menu_parent_id pid,status from T_MENU where menu_parent_id
+		in(
+			select menu_Id from t_menu where menu_Name =#{text})
+			and status = 0
+			and menu_Id in (
+			select DISTINCT menu_Id from t_role_menu where role_Id in (
+			select ta.role_Id from t_account t,t_account_role ta,T_ROLE tr
+			where t.account = ta.acc_Id
+			and ta.role_Id = tr.role_Id
+			and tr.STATUS = 0
+			and t.account =#{account}
+		    )
+		)
+</select>
+
+</mapper>

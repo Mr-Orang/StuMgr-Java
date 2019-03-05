@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.info.KaoqinMapper">
+	<!-- 根据t_account表中的account和密码登录 查询角色，员工编号 -->
+	<!-- 登录成功后查询班级信息 -->
+	<select id="kaoqinClassshow" resultType="com.guigu.domain.info.Kaoqinclassshow">
+		select
+		 tc_name,tc_personnum,tc_technology from t_classes
+	</select>
+	<!-- 考勤类型表 -->
+	<select id="kaqinselect" resultType="com.guigu.common.info.KaoqinTypeVo">
+		select type_id id,type_name
+		 text ,to_char(in_attendance_time,'hh24:mi:ss') inbegin,
+		  to_char(out_attendance_time,'hh24:mi:ss') eend from t_attendance_type
+	</select>
+	<!-- 根据考勤类型来查找考勤时间 -->
+	<select id="kaoqintime" parameterType="String"
+		resultType="com.guigu.common.info.KaoqinTypeVo">
+		select to_char(in_attendance_time,'hh24:mi:ss') inbegin,
+		 to_char(out_attendance_time,'hh24:mi:ss') eend from t_attendance_type
+		  where TYPE_NAME=#{text}
+	</select>
+	<!-- 查询班级信息，并分页 -->
+	<select id="KaoqinStuden" parameterType="String"
+		resultType="com.guigu.common.info.KaoqinStudentVo">
+		select ts.stu_id,ts.stu_name,ts.stu_sex,ts.class_id from t_student ts,t_classes tc where ts.class_id=tc.tc_id and  tc.tc_name=#{kaoqinclass}
+	</select>
+		<!-- 录入学生考勤信息 -->
+	<insert id="kaoqinattendance"  parameterType="com.guigu.domain.info.Attendance">
+		insert into t_attendance values(t_attendance_seq.nextval,#{class_id},#{teacher_id},#{type_id},sysdate,#{ty_yesno})
+	</insert>
+	<!-- 录入学生考勤详情 -->
+	<insert id="kaoqindetails" parameterType="com.guigu.domain.info.Attendance_details">
+		insert into t_attendacne_details values(t_attendacne_details_seq.nextval,t_attendance_seq.currval,#{stu_id},#{status})
+	</insert>
+</mapper>

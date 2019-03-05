@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.marketing.MarketMapper">
+	<!-- 查询所有市场人员统计招生情况 -->
+	<select  id="querySale" resultType="com.guigu.domain.marketing.Statistics">
+		select sale.sts_id, emp.te_name,sale.sts_sourceNmber,sale.sts_applyCount,sale.sts_enrollment
+			 from t_statistics_sale sale,t_employee emp  where sale.sts_empid=emp.te_id order by sts_enrollment desc 
+
+	</select>
+
+	<!-- 查询生源地区/院校统计招生情况 -->
+
+	<select id="querySchool" resultType="com.guigu.domain.marketing.StatisticsSchool">
+		select tst_id,tst_academy,tst_sourceNumber,tst_applyCount,tst_enrollment
+		from t_statistics_school order by tst_enrollment desc
+
+	</select>
+
+
+
+	<!-- maomao start -->
+	<!-- 根据员工编号查询（T_STATISTICS_SALE）报表编号 -->
+	<select id="queryStsID" parameterType="String" resultType="String">
+		select sts_id from T_STATISTICS_SALE where sts_empID=#{value}
+	</select>
+
+	<!-- 根据地区或院校名称（T_STATISTICS_SCHOOL）查询报表编号 -->
+	<select id="queryTstID" parameterType="String" resultType="String">
+		select tst_id from T_STATISTICS_SCHOOL where tst_acadEmy=#{value}
+	</select>
+
+	<!-- 当表中没有记录时新增（t_statistics_sale） -->
+	<insert id="addStatisticsSale" parameterType="StatisticsSale"
+		useGeneratedKeys="true" keyProperty="sts_id" keyColumn="sts_id">
+		<selectKey resultType="String" keyProperty="sts_id" order="BEFORE">
+			select 'st' || seq_STATISTICS_SALE_ID.nextval from dual
+		</selectKey>
+		insert into t_statistics_sale values(#{sts_id},#{sts_empid},1,0,0)
+	</insert>
+
+	<!-- 当表中没有记录时新增（t_statistics_school） -->
+	<insert id="addStatisticsSchool" parameterType="StatisticsSchool"
+		useGeneratedKeys="true" keyProperty="tst_id" keyColumn="tst_id">
+		<selectKey resultType="String" keyProperty="tst_id" order="BEFORE">
+			select 'tst' || seq_STATISTICS_SCHOOL_ID.nextval from dual
+		</selectKey>
+		insert into t_statistics_school
+		values(#{tst_id},#{tst_academy},1,0,0)
+	</insert>
+
+
+
+
+	<!-- 当表中有记录时修改生源人数 及报名率（t_statistics_sale） -->
+	<update id="updateStatisticsSale" parameterType="String">
+		update
+		t_statistics_sale set sts_sourceNmber=sts_sourceNmber+1 ,
+		STS_ENROLLMENT=STS_APPLYCOUNT / (STS_SOURCENMBER+1) where
+		sts_id=#{value}
+	</update>
+
+	<!-- 当表中有记录时修改生源人数 及报名率（t_statistics_school） -->
+	<update id="updateStatisticsSchool" parameterType="String">
+		update
+		t_statistics_school set tst_sourceNumber=tst_sourceNumber+1,
+		TST_ENROLLMENT=TST_APPLYCOUNT /
+		(TST_SOURCENUMBER+1) where
+		tst_id=#{value}
+	</update>
+
+
+
+
+
+	<!-- 当生源为报名时修改报名人数及报名率（t_statistics_sale） -->
+	<update id="updateSaleEnrollment" parameterType="String">
+		update
+		t_statistics_sale set sts_applyCount=sts_applyCount+1,
+		STS_ENROLLMENT=(STS_APPLYCOUNT+1) / STS_SOURCENMBER where
+		sts_id=#{value}
+	</update>
+
+	<!-- 当生源为报名时修改报名人数及报名率（t_statistics_school） -->
+	<update id="updateSchoolEnrollment" parameterType="String">
+		update t_statistics_school set
+		TST_APPLYCOUNT=TST_APPLYCOUNT+1, TST_ENROLLMENT=(TST_APPLYCOUNT+1) /
+		TST_SOURCENUMBER where TST_ID=#{value}
+	</update>
+	<!-- maomao end -->
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.authority.UserManageMapper">
+	<!-- 查询员工信息 -->
+	<select id="queryAllUser"
+		resultType="com.guigu.domain.authority.view.UserManageView">
+		select
+		te.TE_ID,te.TE_NAME,ta.account,ta.PASSWORD,ta.status,tr.role_Name,td.deptName
+		from t_role tr, t_account_role tar ,t_account ta,t_employee
+		te,T_DEPARTMENT td where tr.ROLE_ID=tar.ROLE_ID and
+		tar.ACC_ID=ta.ACCOUNT and te.DEPTID=td.DEPTID and
+		te.TE_ID=ta.PEOPLE_ID and ta.ROLE_TYPE_ID=1
+	</select>
+	<!-- 根据员工ID查询信息 -->
+	<select id="queryUserById" parameterType="String"
+		resultType="com.guigu.domain.authority.view.UserManageView">
+		select
+		te.TE_ID,te.TE_NAME,ta.account,ta.PASSWORD,ta.status,tr.role_Name,td.deptName,tr.ROLE_ID,te.DEPTID
+		from t_role tr, t_account_role tar ,t_account ta,t_employee
+		te,T_DEPARTMENT td where tr.ROLE_ID=tar.ROLE_ID and
+		tar.ACC_ID=ta.ACCOUNT and te.DEPTID=td.DEPTID and
+		te.TE_ID=ta.PEOPLE_ID and ta.ROLE_TYPE_ID=1 and TE_ID=#{value}
+	</select>
+	<!-- 根据所有角色 -->
+	<select id="queryRoles"
+		resultType="com.guigu.domain.authority.vo.RoleVO">
+		select * from T_ROLE
+	</select>
+	<!-- 查询所有部门 -->
+	<select id="queryDeparts"
+		resultType="com.guigu.domain.authority.vo.DepartmentVO">
+		select * from T_DEPARTMENT
+	</select>
+	<!-- 修改角色 -->
+	<update id="updateRole">
+		update T_ACCOUNT_ROLE set ROLE_ID=
+		#{arg0} where ACC_ID=#{arg1}
+	</update>
+	<!-- 修改用户 -->
+	<update id="updateUser" >
+		update T_ACCOUNT set PASSWORD=#{arg0} , status=#{arg1} where ACCOUNT=#{arg2}
+	</update>
+	<!-- 修改员工部门-->
+	<update id="updateDept">
+		update T_EMPLOYEE set TE_NAME=#{arg0} , DEPTID=#{arg1} where te_ID=#{arg2}
+	</update>
+	<!-- 添加员工-->
+	<insert id="addEmp">
+		insert into T_EMPLOYEE values ('emp'||seq_te_id.nextval,#{arg0},#{arg1},#{arg2},#{arg3},#{arg4},#{arg5},#{arg6},'否',#{arg7})
+	</insert>
+	<!-- 添加账号-->
+	<insert id="addUser">
+		insert into T_ACCOUNT values('emp'||seq_te_id.currval,'123456',0,1,'emp'||seq_te_id.currval)
+	</insert>
+	<insert id="addaccRole">
+		insert into T_ACCOUNT_ROLE values('arId_'||seq_ar_id.nextval,'emp'||seq_te_id.currval,#{arg0})
+	</insert>
+</mapper>

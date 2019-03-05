@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.eduoffice.GiveLessonsMapper">
+	<!-- 查询授课信息 -->
+	<select id="queryGiveLessons"
+		resultType="com.guigu.domain.eduoffice.vo.GiveLessonsVo">
+		select gl.GL_ID,c.tc_name,ci.tc_cid,ci.tc_cname,e.TE_ID,e.te_name,gl.STATUS
+		from t_give_lessons gl,T_CLASSES c,T_COURSE_INFO ci,T_EMPLOYEE e
+		<where>
+			gl.CLASS_ID=c.TC_ID and gl.SC_ID=ci.TC_CID and gl.TER_ID=e.te_id
+			<if test="tc_name!=null and tc_name!=''">
+				and c.tc_name like '%${tc_name}%'
+			</if>
+			<if test="tc_cname!=null and tc_cname!=''">
+				and ci.tc_cname like '%${tc_cname}%'
+			</if>
+			<if test="te_name!=null and te_name!=''">
+				and e.te_name like '%${te_name}%'
+			</if>
+		</where>
+	</select>
+
+	<!-- 根据课程编号查询可授课的老师 -->
+	<select id="loadSelectDataByScId"
+		resultType="com.guigu.domain.eduoffice.vo.EmpVo">
+		select e.te_id,e.te_name from T_EMP_COURSE ec,T_EMPLOYEE e
+		where emp_id not in
+		(select TER_ID from T_GIVE_LESSONS
+		GROUP BY TER_ID
+		HAVING COUNT(TER_ID)>=2) and tc_cid=#{0} and status!=1 and
+		ec.emp_id=e.te_id
+	</select>
+
+	<!-- 修改授课老师 -->
+	<update id="editGiveLessonsTeacher">
+		update T_GIVE_LESSONS set TER_ID=#{arg1},status=#{arg2} where
+		GL_ID=#{arg0}
+	</update>
+
+	<!-- 加载班级下拉框数据 -->
+	<select id="loadClassSelect"
+		resultType="com.guigu.domain.eduoffice.Classes">
+		select * from T_CLASSES
+	</select>
+
+	<!-- 根据班级id加载课程下拉框 -->
+	<select id="loadCourseSelectByTcId"
+		resultType="com.guigu.domain.eduoffice.vo.CourseInfoVo">
+		select ci.TC_CID,ci.TC_CNAME from t_course_info
+		ci,t_course_stage cs where cs.TC_CID=ci.TC_CID and cs.TC_SID=(select
+		TL_ID from T_CLASSES where tc_id=#{arg0}) and ci.TC_CALIAS like
+		'%'||(select TC_TECHNOLOGY from T_CLASSES where tc_id=#{arg0})||'%'
+		and
+		ci.TC_CID not in (select sc_id from T_GIVE_LESSONS gl,T_CLASSES c
+		where gl.CLASS_ID=c.tc_id and CLASS_ID=#{arg0}) and ci.TC_CSTATUS=0
+	</select>
+
+	<!-- 添加授课信息 -->
+	<insert id="addGiveLessons">
+		insert into t_give_lessons
+		values('gl00'||SEQ_GIVE_LESSONS_GL_ID.nextval,#{arg0},#{arg1},sysdate,#{arg2},0)
+	</insert>
+	
+	<!-- 结课 修改授课状态 -->
+	<update id="editGiveLessonsStatus">
+		update T_GIVE_LESSONS set status=1 where GL_ID=#{arg0}
+	</update>
+</mapper>

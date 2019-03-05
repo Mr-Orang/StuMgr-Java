@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.materials.PickingManageMapper">
+    <!-- 查询当前账户的申领信息 -->
+    <select id="queryPickingManage" parameterType="String" resultType="use">
+        select * from t_use where takeEmpNo = #{values}
+    </select>
+    <!-- 查询物资信息 -->
+    <select id="quertGoods" resultType="goods">
+        select tg.*,tgo.typeName from T_GOODS tg,t_goodsType tgo
+        where tg.TYPEID = tgo.TYPEID
+        and tg.status = 0
+        order by tg.goodsId
+    </select>
+    <!--  查询当前领用编号的领用明细 -->
+    <select id="queryGoodsDetail" parameterType="String" resultType="goods">
+        select tg.*,tu.countNum,tgp.typeName
+        from t_use_detail tu,T_GOODS tg,T_GOODSTYPE tgp
+        where useId = #{values }
+        and tu.goodsId = tg.goodsId
+        and tg.typeId = tgp.typeId
+        order by tg.goodsId
+    </select>
+    <!-- 插入领用申请表 -->
+    <insert id="insertUse" parameterType="use">
+        <selectKey keyProperty="useId" order="AFTER" resultType="String">
+            select ('useId_'||seq_use.currval) from dual
+        </selectKey>
+        insert into t_use
+        values(('useId_'||seq_use.nextval),#{takeEmpNO},to_char(sysdate,'yyyy-mm-dd hh24:mi:ss'),#{latesTime},'0',null,null,null,null,'0')
+    </insert>
+    <!-- 插入明细 -->
+    <insert id="insertUseDetail" parameterType="java.util.List">
+        insert into t_use_detail
+        select ('used_'||seq_use_detail.nextval),s.* from (
+        <foreach collection="list" item="item" separator="union all">
+            select #{item.useId},#{item.goodsId},#{item.countNum} from dual
+        </foreach>
+        ) s
+    </insert>
+    <!-- 查询未没有经过审核的申请信息 -->
+    <select id="queryUserAndEmp" resultType="useAndEmpView">
+         select tu.useId,te.te_name empName,tu.FILLTIME,tu.LATESTIME from t_use tu,t_employee te
+ 		 where tu.TAKEEMPNO=te.te_id and tu.examinestatus = 0
+    </select>
+    <!-- 修改申请信息 -->
+    <update id="updateUse" parameterType="use">
+        update t_use set examineStatus =
+        #{examineStatus},checkEmpNo=#{checkEmpNo},examineTime=to_char(sysdate,'yyyy-mm-dd hh24:mi:ss')
+        <if test="null!=reason and reason!=''">
+            ,reason=#{reason}
+        </if>
+        where useId = #{useId}
+    </update>
+    <!-- 查询申请单号申请的物资 -->
+    <select id="queryapplyForGoods" parameterType="String" resultType="goods">
+     SELECT tg.*,tus.countNum from t_use tu,t_use_detail tus ,t_goods tg
+      where tu.useId = tus.useId
+      and tus.goodsId = tg.goodsId
+      and tu.useId = #{values}
+      order by tg.goodsId
+    </select>
+    <select id="queryUse" resultType="use" parameterType="String">
+        select * from t_use where takeEmpNo = #{values}
+        order by useId
+    </select>
+    <!-- 查询历史领用记录 -->
+    <select id="queryUsesgo" resultType="use">
+		select go.*,tem.te_name checkEmpName from (
+        select tu.useId,te.te_name takeempno,tu.filltime,tu.latestime,tu.EXAMINESTATUS,tu.checkEmpNo checkEmpNo,tu.reason 
+		from t_use tu,T_EMPLOYEE te where tu.EXAMINESTATUS !=0
+        and tu.TAKEEMPNO = te.te_id) go,T_EMPLOYEE tem
+        where go.checkEmpNo = tem.te_id
+        order by go.useId
+    </select>
+</mapper>

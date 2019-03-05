@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.materials.MaterialInfoMapper">
+    <select id="queryMaterial" resultType="goods">
+       select tg.*,tgp.TYPENAME from T_GOODS tg,T_GOODSTYPE tgp
+       where tg.typeid = tgp.typeid
+       order by tg.goodsId
+    </select>
+    <select id="queryGoodsType" resultType="goodsType">
+        select * from t_goodsType
+    </select>
+    <!-- 查询具体的物资信息 -->
+    <select id="queryGoods" resultType="goods">
+      select * from t_goods where goodsId = #{values}
+    </select>
+    <!-- 保存修改的物资 -->
+    <update id="updateGoods" parameterType="goods">
+      update T_GOODS set brand = #{brand} ,company = #{company} ,DESCRIPTION = #{description} ,typeid = #{typeId},UPSTORE = #{upStore} ,floorStore = #{floorStore}
+      where GOODSID = #{goodsId}
+    </update>
+    <!-- 下架物资 -->
+    <update id="updateMId" parameterType="String">
+      update t_goods set status = 1 where goodsId = #{values}
+    </update>
+    <!-- 上架该物资 -->
+    <update id="addGoodsId" parameterType="String">
+      update t_goods set status = 0 where goodsId = #{values}
+    </update>
+    <!-- 添加新物资 -->
+    <insert id="addsGoods" parameterType="goods">
+        insert into t_goods values('goodsId_'||seq_goods.nextval,#{brand},#{company},#{description},#{typeId},0,#{upStore},#{floorStore},0)
+    </insert>
+</mapper>

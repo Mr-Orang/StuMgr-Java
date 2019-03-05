@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.examination.ApplyExamMapper">
+	<select id="queryFullApply"
+		resultType="com.guigu.common.examination.ExamApplyView">
+		select
+			a.APPLY_ID,
+			te.TE_NAME apply_name,
+			a.APPLY_DATE,
+			a.EX_NOTES apply_reason,
+			c.TC_NAME class_name,
+			tem.te_name take_name,
+			a.TAKE_DATE take_date,
+			a.RESON,
+			decode(a.A_STATE,'0','未审批',
+			'1','同意','2','不同意') apply_state,
+			a.status
+		from t_apply a left join t_classes c on a.class_id=c.tc_id
+		left join t_employee te on a.APPLY_EMP_NO=te.TE_ID
+		left join t_employee tem on a.TAKE_EMP_NO=tem.te_id
+	</select>
+</mapper>

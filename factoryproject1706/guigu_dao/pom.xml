@@ -1,0 +1,25 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.guigu.factoryproject1706</groupId>
+		<artifactId>factoryproject1706</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>guigu_dao</artifactId>
+	<dependencies>
+		<!-- 添加domain依赖 -->
+		<dependency>
+			<groupId>com.guigu.factoryproject1706</groupId>
+			<artifactId>guigu_domain</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<!-- 添加common依赖 -->
+		<dependency>
+			<groupId>com.guigu.factoryproject1706</groupId>
+			<artifactId>guigu_common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+</project>

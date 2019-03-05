@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 学生入班 许永康 -->
+<mapper  namespace="com.guigu.dao.marketing.ClassesMapper">
+<!-- 查询s1未满班的班级 -->
+<select id="queryJoinClass" resultType="com.guigu.domain.marketing.Menu">
+		select t.tc_id id,t.tc_name text from t_classes t,
+		t_level l where t.tl_id=l.tl_id and l.tl_name='S1阶段'
+		and t.tc_personnum &lt; 30
+</select>
+
+<!-- 查询以为报名或预座的生源信息 -->
+<select id="queryStudentSource" resultType="com.guigu.common.marketing.StudentSourceView">
+		select * from (select tss.*,trs.trs_name,sts.te_name tss_empName from t_student_source tss,t_recruit_status trs,t_employee sts
+		where trs.trs_id=tss.tss_status and sts.te_id=tss.sts_id and not exists
+		(select r.rou_id from t_student r where r.rou_id=tss.tss_id))
+		trss where trss.trs_name='报名' or trss.trs_name='预座'
+</select>
+	<!-- 查询班级信息 -->
+<select id="queryClass" parameterType="String" resultType="com.guigu.domain.marketing.Classes">
+		select tc.tc_personnum,te.te_name,tl.tl_name from 
+		t_classes tc,t_level tl,t_employee te
+		where tc.te_id=te.te_id and tc.tl_id=tl.tl_id
+		and tc.tc_id=#{tc_id}
+</select>
+<!-- 根据id查询生源信息表 -->
+<select id="queryStudentById" parameterType="String" resultType="com.guigu.common.marketing.StudentSourceView">
+		select * from t_student_source where tss_id=#{tss_id}
+</select>
+<!-- 添加入班学生信息表 -->
+<insert id="saveStudent" parameterType="com.guigu.domain.info.StudentInfo">
+		insert into t_student values( 's'||stu_id.nextval,#{stuname},#{stusex},to_date(#{stubirthday},'yyyy-MM-dd'),#{stucid},#{stuphone},#{parphone},#{address},#{classid},null,0,#{school},#{rouid})
+</insert>
+<!-- 修改班级表人数 -->
+<update id="updetaStudent" parameterType="String">
+		update t_classes set tc_personnum=tc_personnum+1 where tc_id=#{classid}
+</update>
+<!-- 修改生源信息的招生状态 -->
+<update id="updateApply">
+		update t_student_source set tss_status=#{applyid} where tss_id=#{rouid}
+</update>
+<!-- 根据员工编号查询（T_STATISTICS_SALE）报表编号 -->
+	<select id="queryStsID" parameterType="String" resultType="String">
+		select sts_id from T_STATISTICS_SALE where sts_empID=#{value}
+	</select>
+
+	<!-- 根据地区或院校名称（T_STATISTICS_SCHOOL）查询报表编号 -->
+	<select id="queryTstID" parameterType="String" resultType="String">
+		select tst_id from T_STATISTICS_SCHOOL where tst_acadEmy=#{value}
+	</select>
+	<!-- 当生源为报名时修改报名人数及报名率（t_statistics_sale） -->
+	<update id="updateSaleEnrollment" parameterType="String">
+		update
+		t_statistics_sale set sts_applyCount=sts_applyCount+1,
+		STS_ENROLLMENT=(STS_APPLYCOUNT+1) / STS_SOURCENMBER where
+		sts_id=#{value}
+	</update>
+
+	<!-- 当生源为报名时修改报名人数及报名率（t_statistics_school） -->
+	<update id="updateSchoolEnrollment" parameterType="String">
+		update t_statistics_school set
+		TST_APPLYCOUNT=TST_APPLYCOUNT+1, TST_ENROLLMENT=(TST_APPLYCOUNT+1) /
+		TST_SOURCENUMBER where TST_ID=#{value}
+	</update>
+</mapper>

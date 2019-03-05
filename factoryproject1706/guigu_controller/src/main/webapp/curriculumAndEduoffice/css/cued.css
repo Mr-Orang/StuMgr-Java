@@ -1,0 +1,109 @@
+#cued-menu{
+    padding: 22px;
+    text-align: center;
+}
+#cued-right-main{
+    width:99.8%;
+    height:90%;
+    background-color: white;
+    box-shadow: inset 0px 0px 1px 0px gray;
+}
+.text-class-th{
+	text-align: center;
+    width:100%;
+    height:50px;
+    transition: ease-in 0.2s;
+    border-radius: 5px;
+    box-shadow: inset 0px 0px 1px 0px gray;
+}
+#conten_fk{
+	margin-left: 92%;
+    text-align: center;width:60px;
+    height:50px;
+    border-radius: 5px;
+    box-shadow: inset 0px 0px 5px 0px gray;
+    cursor: pointer;
+}
+.bu-menu{
+    margin-top:30px;
+    width:100%;
+    height:50px;
+    transition: ease-in 0.2s;
+    border-radius: 5px;
+    color:dimgrey;
+    font-size: 19px;
+    cursor: pointer;
+}
+.bu-menu:hover{
+    margin-top:25px;
+    border-radius: 5px;
+    width:100%;
+    height:50px;
+    transition: ease-in 0.2s;
+    background-color: ghostwhite;
+    color:dimgrey;
+}
+.bu-menu-y{
+    cursor: pointer;
+    margin-top:15px;
+    border-radius: 5px;
+    width:100%;
+    height:50px;
+    transition: ease-in 0.2s;
+    box-shadow: 0px 0px 5px 0px gainsboro;
+    background-color: gainsboro;
+    color:white;
+    font-size: 19px;
+}
+
+.text-span{
+    color:#272727;
+    font-size: 25px;
+    background-color:ghostwhite;
+  	box-shadow: 0px 0px 1px 0px gray;
+  	border-radius:5px;
+}
+/**°à¼¶Íâ¿ò**/
+.cued_work_content{
+    margin:30px;
+    width:160px;
+    height:125px;
+    border-radius:5px;
+    box-shadow:0px 0px 0px 0.5px gray;
+    transition: all 0.2s ease-in;
+    cursor: pointer;
+}
+
+.cued_work_content:hover{
+    margin:30px;
+    width:160px;
+    height:125px;
+    border-radius:5px;
+    box-shadow:0px 0px 10px 1px #272727;
+    transition: all 0.2s ease-in;
+    cursor: pointer;
+}
+.cued_work_content_y{
+	margin:30px;
+    width:160px;
+    height:125px;
+    border-radius:5px;
+    box-shadow:0px 0px 10px 1px #272727;
+    transition: all 0.2s ease-in;
+    cursor: pointer;
+}
+/**°à¼¶¿ò¼Ü**/
+.cued_work_content_th{
+    background-color: white;
+    text-align: center;
+    width:100%;
+    height:100%;
+    box-shadow:0px 0px 0px 0.5px gray;
+}
+
+#checkwork_tb{
+	width:100%;
+	height:100%;
+	background-color:white;
+	
+}

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.marketing.StudentConsultMapper">
+	<!-- 查询所有生源咨询信息 -->
+	<select id="queryConsult" resultType="com.guigu.common.marketing.StudentConsult">
+		select
+		tst.tst_id,tss.tss_name,te.te_name,tst.TST_DATE,tst.TST_CONTENT,tsg.TSG_NAME
+		from t_student_grade tsg,t_source_talk tst,t_employee
+		te,t_student_source tss
+		where tsg.tsg_id=tst.tsg_id
+		and
+		tst.TE_ID=te.te_id
+		and tst.TSS_ID=tss.TSS_ID
+
+	</select>
+	<!-- 根据id查询生源咨询信息 -->
+	<select id="queryConsultById" resultType="com.guigu.common.marketing.StudentConsult"
+		parameterType="String">
+		select
+		tst.tst_id,tss.tss_name,te.te_name,tst.TST_DATE,tst.TST_CONTENT,tsg.TSG_NAME,te.te_id,tsg.tsg_id,tss.tss_id
+		from t_student_grade tsg,t_source_talk tst,t_employee te,t_student_source tss
+		where tsg.tsg_id=tst.tsg_id
+		and	tst.TE_ID=te.te_id
+		and tst.TSS_ID=tss.TSS_ID
+		and tst.tst_id=#{value}
+	</select>
+	<!-- 根据employee表查询市场人员姓名 -->
+	<select id="queryEmployeeName" resultType="com.guigu.domain.marketing.Employee">
+		select * from
+		t_employee
+	</select>
+	<!--根据StudentGrade表查询生源等级 -->
+	<select id="queryStudentGradeName" resultType="com.guigu.domain.marketing.StudentGrade">
+		select * from
+		t_student_grade
+	</select>
+	<!-- 根据StudentSource表修改生源信息 -->
+	<update id="updateStudentConsult" parameterType="com.guigu.common.marketing.StudentConsult">
+		update
+		t_source_talk set
+		te_id=#{te_id},
+		tst_date=#{tst_date},
+		tst_content=#{tst_content},
+		tsg_id=#{tsg_id}
+		where tst_id=#{tst_id}
+	</update>
+	<!-- 根据StudentSource表修改学生姓名 -->
+	<!-- <update id="updateStudentSourceName" parameterType="com.guigu.domain.marketing.StudentSource">
+		update
+		t_student_source
+		set tss_name=#{tss_name}
+		where tss_id=#{tss_id}
+	</update>-->
+	<!-- 根据 SourceTalk添加生源咨询信 -->
+	<insert id="addSourceTalk" parameterType="com.guigu.domain.marketing.SourceTalk">
+		insert into
+		t_source_talk values(
+		'tst'||student_source_seq.nextval,
+		#{tss_id},
+		#{te_id},
+		sysdate,
+		#{tst_content},
+		#{tsg_id}
+		)
+	</insert>
+	<!-- 根据 StudentSource查询生源姓名 -->
+	<select id="queryStudentConsult" resultType="com.guigu.common.marketing.StudentConsult">
+		select tss.* from
+		t_student_source tss
+		where not exists(
+		select ts.tss_id
+		from
+		t_source_talk ts
+		where ts.tss_id=tss.tss_id
+		)
+	</select>
+	<!-- 查询加模糊查询 -->
+	<select id="queryLikeStdentConsult" resultType="com.guigu.common.marketing.StudentConsultLike"
+		parameterType="StudentConsultLike">
+		    select tst.tst_id,tss.tss_name,te.te_name,tst.TST_DATE,tst.TST_CONTENT,tsg.TSG_NAME   
+		    from t_student_grade tsg 
+		    inner join t_source_talk tst on tsg.tsg_id=tst.tsg_id  
+		    inner join t_employee te on tst.TE_ID=te.te_id 
+		    inner join t_student_source tss   on tst.TSS_ID=tss.TSS_ID  
+		<where>
+			<if test="tst_id!=null and tst_id!=''">
+				and tst.tst_id=#{tst_id}
+			</if>
+			<if test="tss_name!=null and tss_name!=''">
+				and tss.tss_name like '%${tss_name}%'
+			</if>
+			<if test="te_name!=null and te_name!=''">
+				and te.te_name like '%${te_name}%'
+			</if>
+			<if test="tst_date!=null and tst_date!=''">
+				and tst.tst_date = to_date(#{tst_date},'yyyy-mm-dd
+				hh24:mi:ss')
+			</if>
+			<if test="end_date!=null and end_date!=''">
+				and tss.tst_date &lt;= to_date(#{end_date},'yyyy-mm-dd
+				hh24:mi:ss')+1
+			</if>
+			<if test="tst_content!=null and tst_content!=''">
+				and tst.tst_content like '%${tst_content}%'
+			</if>
+			<if test="tsg_name!=null and tsg_name!=''">
+				and tsg.tsg_name like '%${tsg_name}%'
+			</if>
+		</where>
+		
+		order by tst_id
+	</select>
+
+</mapper>
+
+
+
+
+
+
+
+
+

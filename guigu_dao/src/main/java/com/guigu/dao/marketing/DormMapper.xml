@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.marketing.DormMapper">
+	<!-- 查询已安排的住宿信息 -->
+	<select id="queryBoard" parameterType="BoardHelp" resultType="BoardView">
+		select tb.tbo_id,ts.stu_id,ts.stu_name,tc.tc_name,tdm.tdm_number from
+		t_student ts inner join t_classes tc on ts.CLASS_ID = tc.tc_id inner
+		join T_BOARD tb on tb.ts_id = ts.stu_id inner join t_dorm tdm on
+		tdm.tdm_id = tb.tdm_id inner join T_EMPLOYEE te on te.TE_ID = tc.TE_ID
+		<where>
+			<if test="empID!=null and empID!=''">
+				and te.TE_ID=#{empID}
+			</if>
+			<if test="stuName!=null and stuName!=''">
+				and ts.stu_name like '%${stuName}%'
+			</if>
+			<if test="dormID!=null and dormID!=''">
+				and tdm.tdm_id = #{dormID}
+			</if>
+			<if test="classID!=null and classID!=''">
+				and tc.tc_id =#{classID}
+			</if>
+		</where>
+		order by tb.tbo_id
+	</select>
+	<!-- 查询班级信息 -->
+	<select id="queryClass" resultType="Classes">
+		select
+		tc_id,tc_name,tc_personNum,tc_technology,te_id,tl_id,tc_entering_date,tc_open_date
+		from t_classes order by tc_id
+	</select>
+
+	<!-- 查询更换宿舍类型 -->
+	<select id="queryMigrate" resultType="Migrate">
+		select tm_id,tm_type from
+		t_migrate
+	</select>
+	<!-- 查询宿舍信息 -->
+	<select id="queryDorm" resultType="Dorm">
+		select
+		tdm_id,TDM_NUMBER,tdm_bed,TDM_NOWBED,TDM_STATE from t_dorm order by
+		tdm_id
+	</select>
+
+	<!-- 查询可添加住宿的宿舍(更换住宿或新增住宿) -->
+	<select id="queryAbleChangeDorm" resultType="Dorm">
+		select *from(
+		select
+		ts.APARTMENT_ID tdm_id,td.tdm_number, td.tdm_bed-td.TDM_NOWBED tdm_bed
+		from t_student ts inner join t_board tb on ts.STU_ID = tb.ts_id inner
+		join t_dorm td on td.tdm_id = ts.APARTMENT_ID inner join t_dormType
+		tdt on
+		td.tdm_typeID = tdt.tdm_typeID where ts.stu_sex = #{sex} and
+		ts.CLASS_ID=#{classID}
+		and td.TDM_BED - td.TDM_NOWBED > 0 and
+		ts.APARTMENT_ID &lt;> #{tdmID}
+		union
+		select tdm_id ,tdm_number,tdm_bed -
+		tdm_nowbed tdm_bed from t_dorm td inner join
+		t_dormType tdt on
+		td.tdm_typeID = tdt.tdm_typeID where TDM_NOWBED=0
+		and
+		tdt.TDM_TYPENAME=#{sex}) order by tdm_bed
+	</select>
+
+
+	<!-- 查询宿舍类型 -->
+	<select id="queryDormType" resultType="DormType">
+		select
+		tdm_typeID,tdm_typeName,tdm_typeState from t_dormType
+	</select>
+
+	<!-- 查询未完全安排宿舍的班级学生 -->
+	<select id="queryBoardNoOK" resultType="BoardNotView">
+		select distinct
+		ts.stu_id,ts.stu_name,ts.stu_sex,ts.address ,tc.TC_NAME from t_student
+		ts inner join t_classes tc on tc.tc_id =
+		ts.class_id where ts.stu_id
+		not in (select ts_id from t_board) and
+		ts.stu_sex=#{sex} and
+		ts.CLASS_ID=#{classID}
+	</select>
+
+
+
+	<!-- 添加住宿 -->
+	<insert id="addBoard" parameterType="List">
+		insert into t_board
+		select 'tbo'||seq_boardID.nextval,tbo.*
+		from (
+		<foreach collection="list" item="item" index="index"
+			separator="union all">
+			(select #{item.stuid},#{item.apartmentid} from dual)
+		</foreach>
+		)tbo
+	</insert>
+
+	<!-- 修改学生住宿信息 -->
+	<update id="updateStudentDorm" parameterType="List">
+		update t_student set apartment_id=
+		<foreach collection="list" item="item" index="index"
+			separator="" open="case stu_id" close="end">
+			when #{item.stuid} then
+			#{item.apartmentid}
+		</foreach>
+		where stu_id in
+		<foreach collection="list" item="item" index="index"
+			separator="," open="(" close=")">
+			#{item.stuid}
+		</foreach>
+	</update>
+
+	<!-- 查询未完全安排宿舍的班级 -->
+	<select id="queryNotBoardClass" resultType="Classes"
+		parameterType="String">
+		select distinct ts.class_id
+		tc_id,tc.tc_name from
+		t_student ts inner join t_classes tc on tc.tc_id
+		= ts.class_id inner
+		join t_employee te on te.te_id = tc.te_id where te.te_id=#{value} and
+		ts.stu_ID not in (select ts_id from t_board)
+	</select>
+
+	<!-- 当新增或更换宿舍时修改宿舍实住人数 -->
+	<update id="updateDormNumber">
+		update t_dorm set tdm_nowBed =tdm_nowBed +
+		#{tdm_nowBed} where tdm_id = #{tdm_id}
+	</update>
+
+	<!-- 查询宿舍当前可住人数 -->
+	<select id="queryDormAbleNumber" resultType="int" parameterType="String">
+		select tdm_bed-tdm_nowBed bedNum from t_dorm where tdm_id=#{value}
+	</select>
+
+	<!-- 查询当前老师所带的班级 -->
+	<select id="queryClassByEmpID" parameterType="String"
+		resultType="Classes">
+		select
+		tc.tc_id,tc.tc_name from t_classes tc inner join
+		t_employee te on
+		tc.te_id = te.te_id where te.te_id =#{value}
+	</select>
+
+	<!-- 查询当前老师所带的班级住的宿舍 -->
+	<select id="queryDormByEmpID" parameterType="String" resultType="Dorm">
+		select distinct td.tdm_id,td.tdm_number from t_classes tc
+		inner join
+		t_employee te on te.te_id = tc.te_id
+		inner join t_student ts on
+		ts.class_ID = tc.tc_id
+		inner join t_board tb on tb.ts_id = ts.stu_id
+		inner join t_dorm td on
+		td.tdm_id = tb.tdm_id
+		where te.te_id=#{value}
+	</select>
+
+	<!-- 根据学生编号查询是否有未审批的申请 -->
+	<select id="queryHaveApplyByStuID" parameterType="String"
+		resultType="int">
+		select count(tcha.tcha_ID) from t_changeBoardApply tcha
+		inner join t_student ts on tcha.ts_ID = ts.stu_id where
+		tcha.tcha_usestatus='未审批' and tcha.ts_ID=#{value}
+	</select>
+	<!-- 根据学生编号查询当前宿舍编号 -->
+	<select id="queryDormIDByStuID" parameterType="String"
+		resultType="String">
+		select ts.apartment_id from t_student ts where ts.stu_id
+		=#{value}
+	</select>
+
+	<!-- 查询可以添加住宿的宿舍 -->
+	<select id="queryAbleAddStudentDorm" parameterType="String">
+		select td.* from t_dorm td
+		inner join t_dormType tdt on td.tdm_typeID = tdt.tdm_typeID
+		where tdt.tdm_typeName=#{value} and td.tdm_bed-tdm_nowbed>0
+		order by td.tdm_bed-tdm_nowbed
+	</select>
+
+	<!-- 添加更改宿舍申请 -->
+	<insert id="changeBoardApply" parameterType="ChangeBoardApply"
+		useGeneratedKeys="true" keyProperty="tcha_id" keyColumn="tcha_id">
+		<selectKey resultType="String" keyProperty="tcha_id" order="BEFORE">
+			select 'tcha'||seq_changeBoardApplyID.nextval from dual
+		</selectKey>
+		insert into t_changeBoardApply
+		values(#{tcha_id},#{ts_id},#{tcha_proposer},sysdate,'','','未审批','')
+	</insert>
+
+	<!-- 添加更改宿舍详情 -->
+	<insert id="changeBoardApplyDetail" parameterType="ChangeBoard"
+		useGeneratedKeys="true" keyProperty="tch_id" keyColumn="tch_id">
+		<selectKey resultType="String" keyProperty="tch_id" order="BEFORE">
+			select 'tch'||seq_changeBoardID.nextval from dual
+		</selectKey>
+		insert into t_changeBoard
+		values(#{tch_id},#{tch_stuID},#{tch_changeID},#{tch_formErBoardID},#{tch_aimBoardID},'',#{tm_id})
+	</insert>
+</mapper>

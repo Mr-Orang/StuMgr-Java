@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.materials.PurchaseRequisitionMapper">
+	<!-- 查询物资 -->
+	<select id="queryGoods" resultType="goodsAndGoodsTypeView">
+		select tg.*,tgo.typeName from t_goods tg,t_goodsType tgo where tg.typeid =
+		tgo.typeId
+		order by tg.goodsId
+	</select>
+	<!-- 手动采购插入采购单 -->
+	<insert id="manualPurchase" parameterType="purchase">
+		<selectKey keyProperty="pceId" order="AFTER" resultType="String">
+			select 'pceId_'||seq_purchase.currval from dual
+		</selectKey>
+		insert into t_purchase(pceId,applyEmpNo,pceDate,pceType,status) values
+		(('pceId_'||seq_purchase.nextval),#{applyEmpNo},to_char(SYSDATE,'yyyy-mm-dd hh24:mi:ss'),'手动采购','0')
+	</insert>
+	<!-- 查询当前用户的采购信息 -->
+	<select id="queryUseDetail" parameterType="String" resultType="purchase">
+		SELECT * FROM t_purchase where applyEmpNo=#{values} order by PCEID
+	</select>
+	<!-- 批量插入采购明细 -->
+	<select id="insertPurchaseDetails" parameterType="java.util.List">
+		insert into t_purchase_details
+		select ('pdId_'||seq_purchaseDetails.nextval),s.* from (
+		<foreach collection="list" item="item" separator="union all">
+			select #{item.pceId},#{item.goodsId},#{item.accountNum},0 from dual
+		</foreach>
+		) s
+	</select>
+	<!-- 查询未审批的采购信息 -->
+	<select id="queryPurchase" resultType="purchase">
+		select tp.*,te.te_name applyName from t_purchase tp,t_employee te
+		where tp.applyEmpNo = te.te_id and tp.STATUS = '0'
+		order by tp.pceId
+	</select>
+	<!-- 查询需要采购的物资信息 -->
+	<select id="queryTheMaterialsInThePurchaseInformation"
+		parameterType="String" resultType="goods">
+		select tg.*,tgo.typename,tpu.accountNum,tpu.APPENDACCOUNTNUM countNum
+		from T_GOODS tg,t_purchase tp,
+		t_purchase_details tpu,t_goodsType tgo
+		where tp.pceId = tpu.pceId
+		and tpu.goodsId = tg.goodsId
+		and tg.typeId = tgo.typeid
+		and tp.pceId = #{values}
+	</select>
+	<!-- 审批采购 -->
+	<update id="processingApproval" parameterType="purchase">
+		update t_purchase set
+		status=#{status},checkEmpNo=#{checkEmpNo},checkDate =
+		to_char(sysdate,'yyyy-mm-dd hh24:mi:ss')
+		<if test="null != checkReason and checkReason!=''">
+			,checkReason = #{checkReason}
+		</if>
+		where pceId = #{pceId}
+	</update>
+	<!-- 添加采购追加 -->
+	<update id="addAppend">
+		update t_purchase_details set APPENDACCOUNTNUM = #{arg1}
+		where pceid = #{arg2}
+		and GOODSID = #{arg0}
+	</update>
+	<!-- 查询采购明细 -->
+	<select id="queryPurchaseDetails" parameterType="String" resultType="goods">
+		select tg.*,tgp.typeName,tp.accountNum from t_purchase_details tp,t_goods
+		tg,T_GOODSTYPE tgp
+		where tp.goodsId = tg.goodsId
+		and tgp.typeId = tg.typeId
+		and pceId = #{values}
+	</select>
+	<!-- 查询历史审批记录 -->
+	<select id="queryHistoricalApprovalInformation" resultType="purchase">
+		select go.*,tem.te_name checkEmpName from (
+		select tp.pceId,te.te_name
+		applyempNo,tp.pceDate,tp.pceType,tp.STATUS,tp.checkEmpno,tp.checkDate,tp.checkReason
+		from t_purchase tp,T_EMPLOYEE te
+		where tp.APPLYEMPNO = te.te_id
+		and status !=0
+		) go,T_EMPLOYEE tem
+		where go.checkEmpNo = tem.te_id
+		order by go.pceId
+	</select>
+</mapper>

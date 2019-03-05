@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.materials.ToolsMapper">
+    <!-- 查询可选物资类型 -->
+    <select id="queryGoodsType" resultType="goodsType">
+        select * from T_GOODSTYPE where typeid in (
+		select typeid from T_GOODSTYPE where ptid !='0'
+		and status = 0
+		) and typeid not in (
+				select ptid from T_GOODSTYPE
+		)
+    </select>
+    <!-- 查询表中字段 -->
+    <select id="queryTableName" resultType="tableNameView">
+      select A.COLUMN_NAME tableName  from user_tab_columns A
+      where TABLE_NAME='T_GOODS'
+    </select>
+    <!-- 验证字符串是否存在 -->
+    <select id="checkGo" parameterType="String" resultType="String">
+      select * from (
+      select (BRAND||COMPANY||DESCRIPTION) go from T_GOODS tg
+    ) where go = #{values}
+    </select>
+    <!-- 批量插入物资消息 -->
+    <select id="insertData" parameterType="java.util.List">
+        insert into t_goods
+        select ('goodsId_'||seq_goods.nextval),s.* from (
+        <foreach collection="list" item="item" separator="union all">
+            select
+            #{item.brand},#{item.company},#{item.description},#{item.typeId},0 a,#{item.upStore} b,#{item.floorStore} c,0 d from
+            dual
+        </foreach>
+        ) s
+    </select>
+</mapper>

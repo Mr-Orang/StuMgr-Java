@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.materials.PriceSelectionAuditMapper">
+	<!-- 查询所有可以审批的采购选价选项 -->
+	<select id="queryChoicePrice" resultType="choicePrice">
+		select go.ch chPriceId,go.yu pceId,go.status,sum(go.a) totalAmount from (
+		select tcp.chPriceId ch,tcp.pceId yu,tcp.status status,
+		tcpd.goodsId y,(tcpd.amount*price) a from T_CHOICE_PRICE tcp
+		right join t_choice_price_detail tcpd
+		on tcp.chPriceId = tcpd.chPriceId
+		and tcp.pceId not in (
+		select pceId from t_protocal
+		)
+		) go
+		where go.yu not in (
+		select pceId from T_PURCHASE where GIVEPRICE is not null
+		)
+		group by go.ch,go.yu,go.status
+	</select>
+	<!-- 查询报价物资明细 -->
+	<select id="queryChoicePriceDetail" parameterType="String"
+		resultType="choicePriceDetail">
+		select aa.*,tgs.DESCRIPTION chPriceID from (
+		select tcpd.goodsId goodsId,sum(tcpd.amount*price) price,sum(tcpd.amount)
+		amount
+		from t_choice_price tcp,t_choice_price_detail tcpd
+		where tcp.chPriceId = tcpd.chPriceId
+		and tcp.chPriceId = #{values}
+		group by tcpd.goodsId
+		) aa,T_GOODS tgs
+		where aa.GOODSID = tgs.GOODSID
+	</select>
+	<!-- 查询物资中的供应商情况 -->
+	<select id="queryCheckSupplierSupplyQuantityAndAmount"
+		resultType="choicePriceDetail">
+		select aa.providerid goodsId,tp.proName chPriceID,aa.AMOUNT amount,aa.price
+		price from (
+		select tcpd.providerId,tcpd.amount,tcpd.price
+		from t_choice_price tcp,t_choice_price_detail tcpd
+		where tcp.chPriceId = tcpd.chPriceId
+		and tcp.chPriceId = #{arg0}
+		and tcpd.goodsId = #{arg1}
+		group by tcpd.providerId,tcpd.amount,tcpd.price) aa,t_provider tp
+		where aa.providerId = tp.providerId
+	</select>
+	<!-- 处理选价审批 -->
+	<update id="HandlePriceSelectionApprovals" parameterType="purchase">
+		update t_purchase set givePrice = #{givePrice},agreeEmpNo =
+		#{agreeEmpNo},agreeDate =
+		to_char(sysdate,'yyyy-mm-dd hh24:mi:ss')
+		<if test="null != agreeReason and agreeReason!=''">
+			,agreeReason = #{agreeReason}
+		</if>
+		where pceId = #{pceId}
+	</update>
+	<!-- 生成合同信息 -->
+	<insert id="GenerateAcontract" parameterType="protocal">
+		<selectKey keyProperty="protId" resultType="String"
+			order="AFTER">
+			select 'protId_'||seq_protocal.currval from dual
+		</selectKey>
+		insert into t_protocal
+		values('protId_'||seq_protocal.nextval,#{pceId},0,null,null,null)
+	</insert>
+	<!-- 查询采购单明细 -->
+	<select id="queryProtocalDetail" parameterType="String"
+		resultType="protocalDetail">
+		select tcpd.providerId providerId,sum(tcpd.amount*tcpd.price) conSum
+		from t_choice_price tcp,t_choice_price_detail tcpd
+		where tcp.chPriceId = tcpd.chPriceId
+		and tcp.pceId = #{values}
+		group by tcpd.providerId
+	</select>
+	<!-- 插入合同明细 -->
+	<insert id="GenerateContractDetails"
+		parameterType="java.util.List">
+		insert into t_protocal_detail
+		select 'protdId_'||seq_protocalDetail.nextval,s.* from (
+		<foreach collection="list" item="item" separator="union all">
+			select #{item.protId},#{item.providerId},#{item.conSum},0 from dual
+		</foreach>
+		)s
+	</insert>
+</mapper>

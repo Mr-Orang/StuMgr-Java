@@ -1,0 +1,11 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+
+<html >
+ <frameset rows="95%,5%" frameborder="0"border="0" framespacing="0"  >
+     <frameset cols="20%,80%" border="0" framespacing="0" >
+         <frame name="left" src="cued-menu.jsp" noresize >
+         <frame name="right" src="cued-content.jsp" noresize >
+     </frameset>
+     <frame name="bottom" src="cued-bottom.jsp" scrolling="no" />
+ </frameset>
+</html>

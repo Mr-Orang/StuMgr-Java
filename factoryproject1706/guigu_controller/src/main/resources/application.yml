@@ -1,0 +1,50 @@
+server:
+  port: 8080
+  servlet-path: /
+
+spring:
+  devtools:
+    restart:
+      enabled: false
+      exclude: WEB-INF/**
+      additional-paths: src/main/java
+      
+  datasource:  
+     driver-class-name: oracle.jdbc.driver.OracleDriver
+     url: jdbc:oracle:thin:@172.16.40.100:1521:orcl
+     username: guigu1706
+     password: guigu1706
+     
+  mail:
+    default-encoding: UTF-8
+    host: smtp.qq.com
+    username: 1206368234@qq.com
+    password: kjzssdkogfkzfgdj
+
+mybatis:
+  type-aliases-package: com.guigu.pojo,com.guigu.domain.marketing,com.guigu.common.marketing,com.guigu.domain.info,com.guigu.common.info,com.guigu.domain.materials
+  mapper-locations: classpath:dao/*/*.xml
+    
+logging:
+  level:
+     com.guigu.dao : debug
+
+
+#多数据源（mysql/oracle/....） 
+pagehelper:
+#  helperDialect: mysql
+  reasonable: false
+  supportMethodsArguments: true
+  params: count=countSql
+# 默认false,当为true时，自动检验适合的数据库
+  auto-dialect: true
+   # 这个一定要加上，不然mysql和oracle分页两个只能用一个，另一个会报错，加上后，两种数据库分页都可以用了
+  auto-runtime-dialect: true
+  
+  
+#单数据源
+#pagehelper:
+  #helperDialect: mysql
+  #reasonable: false
+  #supportMethodsArguments: true
+  #params: count=countSql

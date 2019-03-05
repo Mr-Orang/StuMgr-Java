@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.guigu.dao.eduoffice.CuedMenuMapper">
+	<!-- 查询所有老师于课程关系信息 -->
+	<select id="queryMenu_cued" resultType="com.guigu.domain.authority.vo.MenuVO">
+		select t_m.* from t_menu t_m,t_role t_r,t_role_menu t_rm where
+		t_r.role_id=t_rm.role_id and t_rm.MENU_ID=t_m.MENU_ID 
+		and t_rm.role_id=#{roleId}
+		and t_m.model_id=#{modelId}
+	</select>
+</mapper>

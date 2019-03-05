@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.marketing.DormMapper">
+	<!-- 查询已安排的住宿信息 -->
+	<select id="queryBoard" parameterType="BoardHelp" resultType="BoardView">
+		select tb.tbo_id,ts.stu_id,ts.stu_name,tc.tc_name,tdm.tdm_number from
+		t_student ts inner join t_classes tc on ts.CLASS_ID = tc.tc_id inner
+		join T_BOARD tb on tb.ts_id = ts.stu_id inner join t_dorm tdm on
+		tdm.tdm_id = tb.tdm_id
+		<where>
+			<if test="stuName!=null and stuName!=''">
+				and ts.stu_name like '%${stuName}%'
+			</if>
+			<if test="dormID!=null and dormID!=''">
+				and tdm.tdm_id = #{dormID}
+			</if>
+			<if test="classID!=null and classID!=''">
+				and tc.tc_id =#{classID}
+			</if>
+		</where>
+		order by tb.tbo_id
+	</select>
+	<!-- 查询班级信息 -->
+	<select id="queryClass" resultType="Classes">
+		select tc_id,tc_name,tc_personNum,tc_technology,te_id,tl_id,tc_entering_date,tc_open_date from t_classes order by tc_id 
+	</select>
+
+	<!-- 查询更换宿舍类型 -->
+	<select id="queryMigrate" resultType="Migrate">
+		select tm_id,tm_type from
+		t_migrate
+	</select>
+	<!-- 查询宿舍信息 -->
+	<select id="queryDorm" resultType="Dorm">
+		select tdm_id,TDM_NUMBER,tdm_bed,TDM_NOWBED,TDM_STATE from t_dorm order by tdm_id
+	</select>
+	
+	<!-- 查询可添加住宿的宿舍 -->
+	<select id="queryAbleChangeDorm" resultType="Dorm">
+		select
+		ts.APARTMENT_ID
+		tdm_id,tdm.tdm_number from
+		t_student ts inner join
+		T_BOARD tb on
+		tb.tdm_id = ts.APARTMENT_ID inner
+		join
+		t_dorm tdm on
+		tdm.tdm_id =
+		tb.tdm_id where tdm.TDM_NOWBED &lt;
+		tdm.tdm_bed and
+		ts.CLASS_ID=#{classID} and
+		ts.APARTMENT_ID &lt;>#{tdmID}
+		Union
+		select
+		tdm_id a,tdm_number b from t_dorm where TDM_NOWBED=0
+	</select>
+</mapper>

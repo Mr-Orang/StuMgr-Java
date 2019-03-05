@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.guigu.dao.info.TalkMapper">
+	<!-- 查询班级阶段和班级信息 -->
+	<select id="Querytalkclass" resultType="com.guigu.common.info.TalkclassVo">
+		select tll.tl_name,tcs.tc_name,tcs.tc_technology,tee.te_id emp_id,tee.te_name,tcs.tc_personnum 
+  			from t_level tll inner join t_classes tcs on tll.tl_id=tcs.tl_id 
+    			inner join t_employee tee on tcs.te_id=tee.te_id order by tll.tl_name
+	</select>
+	
+	<!-- 查询班级信息 -->
+	<select id="Queryclass" resultType="com.guigu.common.info.ClassVo">
+		select tc_id id, tc_name text from t_classes
+	</select>
+	
+	<!-- 查询班级信息 -->
+	<select id="QueryStudentInformation" parameterType="String" resultType="com.guigu.domain.info.Student">
+		select stu_id stuid,stu_name stuname from t_student where class_id=#{class_id}
+	</select>
+	
+	<!-- 保存谈话信息 -->
+	<insert id="SaveStudentTalk" parameterType="String">
+		insert into t_talk values(seq_student_talk.nextval,#{talk_person},sysdate)
+	</insert>
+	
+	<!-- 保存谈话详情信息 -->
+	<insert id="SaveStudentTalkdetail" parameterType="com.guigu.domain.info.Talk_Details">
+		insert into t_talk_details values(seq_student_talk_detail.nextval,seq_student_talk.currval,#{stu_id},#{talk_content},#{talk_conte},#{reason},#{talk_type})
+	</insert>
+	
+	<!-- 根据班级和老师编号查询全班学生谈话信息 -->
+	<select id="QueryClassStudentTalkdetail" parameterType="String" resultType="com.guigu.common.info.ClassStudentTalkVo">
+		select tclass.stu_id,tclass.tc_name,tclass.stu_name,tclass.stu_sex,count(tclass.ttds_stu_id) as shulian
+  			from (select tsce.*,ttds.stu_id ttds_stu_id  from (select tst.stu_id,tcs.tc_name,tst.stu_name,tst.stu_sex,tee.te_id
+  			from t_student tst inner join t_classes tcs on tst.class_id=tcs.tc_id 
+			  inner join t_employee tee on tcs.te_id=tee.te_id) tsce inner join t_talk_details ttds on tsce.stu_id=ttds.stu_id) tclass
+			  group by tclass.stu_id,tclass.tc_name,tclass.stu_name,tclass.stu_sex,tclass.te_id having tclass.tc_name=#{tc_name} and tclass.te_id=#{emp_id}
+			  union
+			  select tst.stu_id,tcs.tc_name,tst.stu_name,tst.stu_sex,0 as shulian
+			    from t_student tst inner join t_classes tcs on tst.class_id=tcs.tc_id 
+			    inner join t_employee tee on tcs.te_id=tee.te_id 
+			    where tcs.tc_name=#{tc_name} and tee.te_id=#{emp_id} and tst.stu_id not in (select stu_id from t_talk_details)
+	</select>
+	
+	<!-- 查询学生个人谈话信息 ttk.talk_person=#{emp_id} and -->
+	<select id="QueryStudentTalkrecord" parameterType="String" resultType="com.guigu.common.info.TalkClassStudentVo">
+		select ttds.talk_details_id,ttds.talk_type,ttds.talk_content,ttds.viewpoint,ttds.reason,tee.te_name talk_person,ttk.talk_time
+			from t_employee tee inner join t_talk ttk on tee.te_id=ttk.talk_person inner join t_talk_details ttds on ttk.talk_id=ttds.talk_id
+  				where ttds.stu_id=#{stu_id}
+	</select>
+	
+	<!-- 根据学生id查询学生个人谈话信息  -->
+	<select id="QueryStudentTalk" parameterType="String" resultType="com.guigu.common.info.TalkClassStudentVo">
+		select ttds.talk_details_id,ttds.talk_type,tst.stu_name,ttds.talk_content,ttds.viewpoint,ttds.reason,tee.te_name talk_person,ttk.talk_time
+			from t_employee tee inner join t_talk ttk on tee.te_id=ttk.talk_person inner join t_talk_details ttds on ttk.talk_id=ttds.talk_id inner join t_student tst on tst.stu_id=ttds.stu_id
+  				<where>
+  					ttds.stu_id=#{stu_id}
+  					<if test='viewpoint=="0"'> 
+  						and viewpoint=0 
+  					</if>
+  					<if test='viewpoint=="1"'> 
+  						and viewpoint=1 
+  					</if>
+  					<if test='viewpoint=="2"'> 
+  						and viewpoint=2
+  					</if>
+  				</where>
+	</select>
+	
+	<!-- 学生同意谈话，根据谈话详情id修改信息 -->
+	<update id="UpdateStudentAgreeTalk" parameterType="String">
+		update t_talk_details set viewpoint=1 where talk_details_id=#{talk_details_id}
+	</update>
+	
+	<!-- 学生不同意谈话，根据谈话详情id修改信息 -->
+	<update id="UpdateStudentNoAgreeTalk" parameterType="String">
+		update t_talk_details set viewpoint=2,reason=#{reason} where talk_details_id=#{talk_details_id}
+	</update>
+	
+	
+</mapper>

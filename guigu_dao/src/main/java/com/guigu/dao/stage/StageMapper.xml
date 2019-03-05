@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.stage.StageMapper">
+		<!-- 查询所有阶段信息 -->
+		<select id="queryStage" resultType="com.guigu.domain.curriculum.Stage_course">
+		select * from t_stage_course
+		</select>
+		<!-- 查询所有阶段信息 -->
+		<select id="queryUsableStage" resultType="com.guigu.domain.curriculum.Stage_course">
+		select * from t_stage_course where tc_sstatus=0
+		</select>
+		<!-- 添加阶段信息 -->
+		<insert id="addStage" parameterType="com.guigu.domain.curriculum.Stage_course">
+		insert into t_stage_course values(#{tc_sid},#{tc_sname},#{tc_sstatus})
+		</insert>
+		<!--修改阶段信息  -->
+		<update id="updateStage" parameterType="com.guigu.domain.curriculum.Stage_course">
+		update t_stage_course set tc_sname = #{Stage_course.tc_sname},
+		tc_sstatus = #{Stage_course.tc_sstatus} where tc_sid = #{Stage_course.tc_sid}
+		</update>
+		<!--删除阶段信息  -->
+		<delete id="deleteStage" parameterType="String">
+		delete from t_stage_course where tc_sid = #{value} 
+		</delete>
+</mapper>
+

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.guigu.dao.eduoffice.EmpCourseMapper">
+	<!-- 查询所有老师于课程关系信息 -->
+	<select id="queryEmpCourseList"  resultType="com.guigu.domain.eduoffice.vo.EmpCourseVo">
+		select ec.EC_ID,ci.tc_cname,e.te_name,ec.status 
+			from T_EMP_COURSE ec,t_course_info ci,T_EMPLOYEE e 
+		<where>
+			ec.TC_CID=ci.TC_CID and ec.EMP_ID=e.TE_ID
+			<if test="ec_id!=null and ec_id!=''">
+				and ec.ec_id like '%${ec_id}%'
+			</if>
+			<if test="tc_cname!=null and tc_cname!=''">
+				and ci.tc_cname like '%${tc_cname}%'
+			</if>
+			<if test="te_name!=null and te_name!=''">
+				and e.te_name like '%${te_name}%'
+			</if>
+		</where>
+	</select>
+	
+	<!--  进行逻辑删除 修改状态为1 -->
+	<update id="updateStatus">
+		update t_emp_course set status=1 where ec_id=#{0}
+	</update>
+	
+	<!-- 启用老师课程关系 修改状态为0 -->
+	<update id="updateStatus2">
+		update t_emp_course set status=0 where ec_id=#{0}
+	</update>
+	
+	<!-- 加载下拉框老师信息 -->
+	<select id="loadEmpSelect" resultType="com.guigu.domain.eduoffice.vo.EmpVo">
+		select e.te_id,e.te_name from T_ACCOUNT a,T_EMPLOYEE e,T_ACCOUNT_ROLE ar 
+			where a.PEOPLE_ID=e.TE_ID and a.ACCOUNT=ar.ACC_ID and ar.ROLE_ID='roleId_1'
+	</select>
+	
+	<!-- 添加老师课程关系 -->
+	<insert id="addEmpCourse">
+		insert into T_EMP_COURSE values('ec000'||seq_ec_id.nextval,#{courseInfo1},#{emp_id},0)
+	</insert>
+	
+	<!-- 查询课程信息 -->
+	<select id="queryCourseInfoVo" resultType="com.guigu.domain.eduoffice.vo.EmpVo2">
+		select tc_cid,tc_cname from T_COURSE_INFO
+	</select>
+	
+	<!-- 查询授课信息 -->
+	<select id="queryGiveLessons" resultType="com.guigu.domain.eduoffice.vo.GiveLessonsVo">
+		select gl.GL_ID,c.tc_name,ci.tc_cname,e.te_name,gl.STATUS 
+			from t_give_lessons gl,T_CLASSES c,T_COURSE_INFO ci,T_EMPLOYEE e 
+		<where>
+			gl.CLASS_ID=c.TC_ID and gl.SC_ID=ci.TC_CID and gl.TER_ID=e.te_id
+			<if test="tc_name!=null and tc_name!=''">
+				and c.tc_name like '%${tc_name}%'
+			</if>
+			<if test="tc_cname!=null and tc_cname!=''">
+				and ci.tc_cname like '%${tc_cname}%'
+			</if>
+			<if test="te_name!=null and te_name!=''">
+				and e.te_name like '%${te_name}%'
+			</if>
+		</where>
+	</select>
+</mapper>

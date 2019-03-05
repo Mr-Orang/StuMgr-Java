@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.materials.PurchaseContractManagementMapper">
+    <select id="queryProtocal" resultType="protocal">
+        select tp.protId,tp.pceId,sum(tpd.conSum) theTotalAmountOfTheContract
+        from t_protocal tp,t_protocal_detail tpd
+        where tp.protId = tpd.protId
+        and tp.state = 0
+        group by tp.protId,tp.pceId
+        order by tp.protId
+    </select>
+    <select id="queryProtocalDetail" parameterType="String" resultType="protocalDetail">
+        select tpd.providerId,tp.proName status,tpd.conSum,tps.pceId protId
+        from t_protocal_detail tpd,
+        t_provider tp,t_protocal tps
+        where tpd.protid = #{values}
+        and tp.providerId = tpd.providerId
+		and tps.protId = tpd.protId
+    </select>
+    <select id="queryChoicePriceDetail" resultType="protocalDetail">
+        select tcpd.goodsId providerId,tgs.DESCRIPTION status,(tcpd.amount||'*'||tcpd.price ) conSum
+        from T_CHOICE_PRICE tcp,T_CHOICE_PRICE_DETAIL tcpd,t_goods tgs
+        where tcp.chPriceId = tcpd.chPriceId
+        and tcp.pceId = #{arg0}
+        and tcpd.providerId = #{arg1}
+        and tgs.goodsId = tcpd.goodsId
+    </select>
+    <update id="ModifyApprovalStatus" parameterType="protocal">
+        update t_protocal set state=#{state},signdate=to_char(sysdate,'yyyy-mm-dd hh24:mi:ss'),signEmpNo=#{signEmpNo}
+        <if test="null!=checkReason and checkReason!=''">
+            ,checkReason = #{checkReason}
+        </if>
+        where protId = #{protId}
+    </update>
+    <select id="queryProvider" resultType="provider">
+        select DISTINCT tp.* from t_protocal_detail tpd,t_provider tp
+        where tpd.protId = #{arg0}
+        and tp.providerId = tpd.providerId
+    </select>
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.guigu.dao.info.RewardsMapper">
+	<!-- 根据老师查询他所带班级所有学生的奖励与处罚 -->
+	<select id="queryStudentApply" parameterType="String" resultType="com.guigu.common.info.StudentRewardsVo">
+		select te.Stu_name,te.Stu_sex,te.tc_name,te.Rewards_type,te.Rewards_apply_reason,te.Rewards_apply_time,te.Rewards_time,te.Rewards_reason,te.Rewards_status,tem.te_name from (
+select ts.Stu_name,ts.Stu_sex,tc.tc_name,trd.Rewards_type,trd.Rewards_apply_reason,tr.Rewards_apply_time,tr.Rewards_time,tr.Rewards_reason,tr.Rewards_status,tr.Review_id 
+from t_Rewards_details trd,t_rewards tr,t_student ts,t_classes tc,t_employee te
+where trd.Stu_id=ts.Stu_id and ts.Class_id=tc.tc_id and trd.rewards_id=tr.rewards_id and tc.te_id=te.te_id and 
+trd.stu_id in(select ts.Stu_id from t_student ts,t_classes tc where class_id in(select tc_id from t_classes) and  ts.class_id=tc.tc_id and tc.te_id='emp4') order by ts.Stu_name
+) te left join t_employee tem on te.Review_id=tem.te_id
+	</select>
+	<!-- 根据老师编号查询他所带班级的所有学生 -->
+	<select id="queryStudentByTeacherid" parameterType="String" resultType="com.guigu.common.info.StudentVo">
+		select ts.Stu_id,ts.Stu_name,ts.Stu_sex,ts.Stu_phone,ts.Par_phone,ts.address,tc.tc_name,ts.Apartment_id,ts.Stu_Status,ts.school 
+		from t_student ts,t_classes tc 
+		where class_id in(select tc_id from t_classes) and  ts.class_id=tc.tc_id and tc.te_id=#{value} and ts.Stu_Status=0 order by ts.Stu_id 
+	</select>
+	<!-- 添加学生奖惩信息表 -->
+	<insert id="addRewards" parameterType="String">
+		insert into t_rewards values(seq_t_rewards.nextval,#{value},sysdate,'',0,'','')
+	</insert>
+	<!-- 学生奖惩详情信息 -->
+	<insert id="addrewardsdetails">
+		insert into t_Rewards_details values(seq_t_Rewards_details.nextval,seq_t_rewards.currval,#{rewards_type},#{stu_id},#{rewards_apply_reason})
+	</insert>
+	<select id="queryAllApply" resultType="com.guigu.common.info.ApplyVo">
+		select te.te_id,te.stu_name,te.stu_sex,te.tc_name,te.tname tname,te.Rewards_type,te.Rewards_apply_reason,te.Rewards_apply_time,te.Rewards_time,te.Rewards_status,te.Rewards_reason,te.Review_id ,tem.te_name from (
+		select te.te_id,ts.stu_name,ts.stu_sex,tc.tc_name,te.te_name tname,trd.Rewards_type,trd.Rewards_apply_reason,tr.Rewards_apply_time,tr.Rewards_time,tr.Rewards_status,tr.Rewards_reason,tr.Review_id 
+		from t_rewards tr,t_Rewards_details trd,t_employee te,t_student ts,t_classes tc 
+		where tr.rewards_id=trd.rewards_id and tr.Review_tid=te.te_id and trd.Stu_id=ts.Stu_id and ts.Class_id=tc.tc_id
+		) te left join t_employee tem on te.Review_id=tem.te_id order by tem.te_name
+	</select>
+	<!-- 查询所有未审批的申请单信息 -->
+	<select id="queryRewardsInfo" resultType="com.guigu.common.info.RewardsInfo">
+ 		select tr.rewards_id,te.te_name,tr.Rewards_apply_time from t_rewards tr,t_employee te where tr.Review_tid=te.te_id and tr.Rewards_status=0 order by tr.rewards_id	
+ 	</select>
+	<!-- 根据申请单编号查询所有未审批的学生申请信息 -->
+	<select id="queryStudentApplyInfo" parameterType="String" resultType="com.guigu.common.info.StudentApplyInfo">
+		  select ts.Stu_name,ts.Stu_sex,tc.tc_name,te.te_name,tr.Rewards_apply_time,trd.Rewards_type,trd.Rewards_apply_reason from t_Rewards_details trd,t_rewards tr,t_student ts,t_classes tc,t_employee te 
+ 		  where trd.rewards_id=tr.rewards_id and trd.Stu_id=ts.Stu_id and ts.Class_id=tc.tc_id and tr.Review_tid=te.te_id  and tr.rewards_id=#{value} order by ts.Stu_name
+	</select>
+	<!-- 审核通过 -->
+	<update id="updateRewards">
+		update t_rewards set Review_id=#{Review_id},Rewards_status=1,Rewards_time=sysdate where rewards_id=#{rewards_id}
+	</update>
+	<!-- 审核不通过 -->
+	<update id="updateRewardsNoAgree">
+		update t_rewards set Review_id=#{Review_id},Rewards_status=2,Rewards_time=sysdate,Rewards_reason=#{Rewards_reason} where rewards_id=#{rewards_id}
+	</update>
+	<!-- 学生查看自己的奖罚信息 -->
+	<select id="queryStudentRewardsInfo" parameterType="String" resultType="com.guigu.common.info.StudentRewardsPunishInfoVo">
+		select tr.Rewards_apply_time,te.te_name,tr.Rewards_status,tr.Rewards_reason,tr.Rewards_time,trd.Rewards_type,trd.Rewards_apply_reason 
+from t_Rewards_details trd,t_rewards tr,t_employee te where trd.rewards_id=tr.rewards_id and tr.Review_id=te.te_id and Stu_id=#{value} order by te.te_name
+	</select>
+</mapper>

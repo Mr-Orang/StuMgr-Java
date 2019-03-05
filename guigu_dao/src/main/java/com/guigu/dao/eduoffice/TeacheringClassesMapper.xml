@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.guigu.dao.eduoffice.TeacheringClassesMapper">
+	<!-- 老师通过账号班级 -->
+	<select id="queryCuedClassListByAccid" parameterType="String" resultType="com.guigu.domain.eduoffice.vo.CuedClassesVO">
+		select t_c.*,t_ci.tc_cname ,t_gl.status,t_gl.sc_id,t_sc.tc_sname from t_employee t_e,t_give_lessons t_gl,T_CLASSES t_c,T_COURSE_INFO t_ci ,t_account t_a ,t_stage_course t_sc where 
+		t_e.te_id=t_gl.ter_id and t_gl.sc_id=t_ci.tc_cid and t_gl.class_id=t_c.tc_id and t_a.people_id=t_e.te_id and t_c.tl_id=t_sc.tc_sid
+		and t_a.account=#{value}
+	</select>
+	
+	<!-- 通过班级id获取学生-->
+	<select id="queryStudentsByCid" parameterType="String" resultType="com.guigu.domain.eduoffice.vo.StudentVO">
+		select *from t_student where class_id=#{value} and stu_status=0
+	</select>
+	
+	<!-- 通过课程id获取章节-->
+	<select id="queryCuedListByAccid" parameterType="String" resultType="com.guigu.domain.curriculum.Course_section">
+		select *from t_course_section where tc_cid=#{value}
+	</select>
+</mapper>

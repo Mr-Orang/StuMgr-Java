@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.materials.MaterialTypeMapper">
+    <select id="queryGoodsType" resultType="goodsTypView">
+       select typeid id,typename text,ptid parentId,status from t_goodsType
+    </select>
+    <insert id="addNode" parameterType="returnView">
+        <selectKey order="AFTER" resultType="String" keyProperty="id">
+            select 'typeId_'||seq_goodsType.currval from dual
+        </selectKey>
+        insert into t_goodsType values('typeId_'||seq_goodsType.nextval,#{text},#{parentId},0)
+    </insert>
+    <update id="updateNode">
+          update t_goodsType set typeName = #{arg1} where typeId = #{arg0}
+    </update>
+    <update id="dragAndDropTheParentTypeOfTheModifiedSubtype">
+          update t_goodsType set ptid = #{arg1}  where typeid = #{arg0}
+    </update>
+    <!-- 修改节点状态 -->
+    <update id="modifyStatus">
+        update t_goodsType set status = #{arg1} where typeId = #{arg0}
+    </update>
+</mapper>

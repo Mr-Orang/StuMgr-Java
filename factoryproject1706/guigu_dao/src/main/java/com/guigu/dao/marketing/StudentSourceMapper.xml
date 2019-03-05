@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.marketing.StudentSourceMapper">
+	<!-- 查询生源信息 -->
+	<select id="queryStudentSource" resultType="StudentSourceView" parameterType="StudentSourceHelp">
+		select tss.tss_id, tss.tss_name,tss.tss_mobile,tss.TSS_AREA_SCHOOL,tss.TSS_QQ,tss.TSS_REGDATE,trs.trs_name,tss.TSS_LOSTTEXT,tss.TSS_PARENT_MOBILE,te.te_name  tss_empName FROM T_STUDENT_SOURCE tss inner join T_RECRUIT_STATUS trs on tss.tss_status = trs.trs_id inner join t_employee te on te.te_id = tss.sts_id
+		<where>
+			<if test="ID!=null and ID!=''">
+				and tss.tss_id = #{ID}
+			</if>
+			<if test="name!=null and name!=''">
+				and tss.tss_name like  '%${name}%'
+			</if>
+			<if test="mobile!=null and mobile!=''">
+				and tss.tss_mobile like  '%${mobile}%' 
+			</if>
+			<if test="area!=null and area!=''">
+				and tss.tss_area_school  like  '%${area}%'
+			</if>
+			<if test="startDate!=null and startDate!=''">
+				and tss.TSS_REGDATE >=  to_date(#{startDate}, 'yyyy-mm-dd hh24:mi:ss')
+			</if>
+			<if test="endDate!=null and endDate!=''">
+				and tss.TSS_REGDATE &lt;=  to_date(#{endDate}, 'yyyy-mm-dd hh24:mi:ss')+1
+			</if>
+			<if test="status!=null and status!=''">
+				and trs.trs_id = #{status}
+			</if>
+			<if test="empName!=null and empName!=''">
+				and te.te_name  like  '%${empName}%'
+			</if>
+		</where>
+		
+		order by tss_id
+	</select>
+	
+	<!-- 查询生源招生状态信息 -->
+	<select id="queryRecruitStatus" resultType="RecruitStatus">
+		select trs_id,trs_name from T_RECRUIT_STATUS
+	</select>
+	
+	<!-- 新增生源 -->
+	<insert id="addStudentSource" parameterType="StudentSourceAdd" useGeneratedKeys="true" keyProperty="stuSourceID" keyColumn="tss_id">
+		<selectKey resultType="String" keyProperty="stuSourceID" order="BEFORE">
+			select 'tss' || seq_stuSourceID.nextval from dual
+		</selectKey>
+		insert into t_student_source(tss_id,tss_name,tss_mobile,tss_area_school,tss_qq,tss_regdate,tss_status,tss_parent_mobile,sts_id) values(#{stuSourceID},#{stuSourceName},#{stuSourceMobile},#{stuSourceArea},#{stuSourceQQ},sysdate,'trs1',#{stuSourcePmobile},#{empID})
+	</insert>
+	
+	<!-- 根据生源编号查询生源信息 -->
+	<select id="queryStudentSourceByID" parameterType="String" resultType="StudentSource">
+		select tss_id,tss_name,tss_mobile,tss_area_school,tss_qq,tss_status trs_id,tss_lostText,tss_parent_mobile from t_student_source where tss_id=#{value}
+	</select>
+	
+	<!-- 根据生源编号修改生源信息 -->
+	<update id="updateStudentSource" parameterType="StudentSource">
+		update t_student_source set tss_name=#{tss_name},tss_mobile=#{tss_mobile},tss_area_school=#{tss_area_school},tss_qq=#{tss_qq},tss_status=#{trs_id},tss_parent_mobile=#{tss_parent_mobile},tss_losttext=#{tss_losttext} where tss_id=#{tss_id}
+	</update>
+	<!-- 修改生源咨询状态  	lijianghua -->
+	<update id="updateStudentSourceStatus" parameterType="String" >
+    	update t_student_source set tss_status='trs2' where tss_id=#{value}
+	</update>
+</mapper>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.guigu.dao.authority.MainMenuMapper">
+	<!-- 查询所有菜单 -->
+	<select id="queryFatherMenu"  resultType="com.guigu.domain.authority.view.MenuView">
+		select distinct(menu_id) id,menu_name text,menu_url url,MENUICONCLS iconCls,menu_parent_id pid,status from t_menu where MENU_PARENT_ID = 0 and status=0 and model_id='modelId_1003'
+	</select>
+</mapper>

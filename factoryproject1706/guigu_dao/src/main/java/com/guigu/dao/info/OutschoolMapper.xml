@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.guigu.dao.info.OutschoolMapper">
+
+	<!-- 查询退学信息 -->
+	<select id="queryoutschool" resultType="StuOutschool">
+		select td.dropout_id,td.stu_id,ts.stu_name,td.dropout_reason,td.approver_time,td.review_id,td.review_status,td.review_reason,td.review_time 
+			from t_dropout td,t_student ts where td.stu_id=ts.stu_id
+	</select>
+	
+	<!-- 查询学生退学缴费详情 -->
+	<select id="queryoutschool_money" parameterType="String" resultType="Outschool_money">
+		select tp.tp_id,ts.stu_name,tle.tl_name,tl.tlf_statement,tl.tlf_fee,tp.tp_cash,tp.tp_date,te.te_name,tp.tp_tip_status 
+			from t_payment tp,t_student ts,t_level_fee tl,t_level tle,t_employee te 
+			where tp.tlf_id=tl.tl_id 
+			and tl.tl_id=tle.tl_id 
+			and tp.te_id=te.te_id 
+			and tp.ts_id=ts.stu_id 
+			and tle.tl_status='有效' 
+			and tl.tlf_state='有效' 
+			and tp.ts_id=#{tp_id,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 查询审批状态，不同意原因 -->
+	<select id="querystatus_reson" parameterType="String" resultType="StuOutschool">
+		select review_status,review_reason from t_dropout where stu_id=#{stu_id}
+	</select>
+	
+	<!-- 对退学学生信息审批 -->
+	<update id="updatetoutschool">
+		update t_dropout set review_id=#{review_use,jdbcType=VARCHAR},review_status=#{sp_yes,jdbcType=NUMERIC},review_reason=#{text_no,jdbcType=VARCHAR},review_time=SYSDATE where stu_id=#{stu_id,jdbcType=VARCHAR}
+	</update>
+	
+	<!-- 查询所有在班学生信息 -->
+	<select id="queryoutstudentinfo" resultType="Outschool_studentinfo">
+		select ts.stu_id,ts.stu_name,ts.stu_sex,ts.stu_cid,ts.address,ts.stu_status,ts.school,tc.tc_name 
+			from t_student ts,t_classes tc where ts.class_id=tc.tc_id and ts.stu_status !='2' and ts.stu_status !='3'
+	</select>
+	
+	<!-- 查询退学单最后一个id -->
+	<select id="queryoutid" resultType="StuOutschool">
+		select dropout_id from  (select * from t_dropout order by dropout_id desc) where rownum=1
+	</select>
+	
+	<!-- 保存填写退学单 -->
+	<insert id="saveoutschool" parameterType="String">
+		insert into t_dropout values(#{dropout_id},#{stu_id},#{reason},SYSDATE,'',0,'','')
+	</insert>
+	
+	<!-- 修改学生在读状态 -->
+	<update id="updatestudentout">
+		update t_student set stu_status=2 where stu_id=#{stu_id}
+	</update>
+
+</mapper>

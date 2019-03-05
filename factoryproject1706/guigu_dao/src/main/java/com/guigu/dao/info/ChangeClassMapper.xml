@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.info.ChangeClassMapper">
+	<!-- 根据教师查询对应班级所有转班申请 -->
+	<select id="queryChangeClassApply" resultType="ChangeClassView">
+	select tcc.*,tc.tc_name out_classname,tcs.tc_name in_classname, ts.stu_name,te1.te_name out_person from t_change_class tcc
+		left join t_classes tc
+		on tc.tc_id=tcc.out_classid
+		left join t_classes tcs
+		on tcs.tc_id=tcc.in_classid
+		left join t_student ts
+		on ts.stu_id=tcc.stu_id
+		left join t_employee te1
+		on te1.te_id=tcc.out_check
+		left join t_employee te2
+		on te2.te_id=tcc.in_check
+		where tcc.out_classid in(select tc.tc_id from t_classes tc
+		where tc.te_id=#{teacher_id}) 
+		
+			<if test="changeClassSearch.time!=null and changeClassSearch.time!=''">
+				and tcc.time like to_date(#{changeClassSearch.time},'yyyy-MM-dd')
+			</if>
+			<if test="changeClassSearch.in_status!=null and changeClassSearch.in_status>-1">
+				and tcc.in_status=#{changeClassSearch.in_status}
+			</if>
+			<if test="changeClassSearch.out_classid!=null and changeClassSearch.out_classid!=''">
+				and tcc.out_classid=#{changeClassSearch.out_classid}
+			</if>
+		
+		order by tcc.tcc_id desc
+	</select>
+	
+	<!-- 根据转班编号查询对应信息 -->
+	<select id="queryChangeClassByTccId"  parameterType="String" resultType="ChangeClassView">
+		select tcc.*,ts.stu_name,tc.tc_name in_classname,tcs.tc_name out_classname,te1.te_name out_person,te2.te_name in_person from t_change_class tcc
+		inner join t_student ts
+		on tcc.stu_id=ts.stu_id
+		left join t_classes tc
+		on tc.tc_id=tcc.in_classid
+		left join t_classes tcs
+		on tcs.tc_id=tcc.out_classid
+		left join t_employee te1
+		on te1.te_id=tcc.out_check
+		left join t_employee te2
+		on te2.te_id=tcc.in_check
+		where tcc.tcc_id=#{value}
+		order by tcc.tcc_id desc
+	</select>
+
+	<!-- 查询添加操作老师所交的班级  -->
+	<select id="queryClassByTeId" resultType="Classes">
+		select tc_id,tc_name from t_classes where te_id=#{te_id} order by tc_id desc
+	</select>
+	
+	<!-- 根据班级编号查询所有学生 -->
+	<select id="queryStudentByTcId" resultType="Student">
+		select stu_id stuid,stu_name stuname from t_student where 
+		class_id=#{tc_id} order by stu_id desc
+	</select>
+
+	<!-- 查询所有班级信息 -->
+	<select id="queryAllClassByTcId" resultType="Classes" parameterType="String">
+		select tc_id,tc_name from t_classes 
+		<if test="#{tc_id}!=null">
+			where tc_id!=#{tc_id}
+		</if>
+		order by tc_id desc
+	</select>
+	
+	<!-- 添加转班申请 -->
+	<insert id="addChangeClassApply">
+		insert into t_change_class(tcc_id,stu_id,out_classid,in_classid,put_reason,state,time,out_check,out_status,out_time,in_status) values(
+			'tcc'||seq_change_class.nextval,#{changeClassView.stu_id},#{changeClassView.out_classid},#{changeClassView.in_classid},#{changeClassView.put_reason},0,sysdate-1,#{changeClassView.out_check},1,sysdate
+		,0)
+	</insert>
+	
+	<!-- 修改转班申请 -->
+	<update id="updateChangeClassApply">
+		update t_change_class
+		set stu_id=#{changeClassView.stu_id},out_classid=#{changeClassView.out_classid},
+		in_classid=#{changeClassView.in_classid},put_reason=#{changeClassView.put_reason},time=sysdate,out_time=sysdate+1
+		where tcc_id=#{changeClassView.tcc_id}
+	</update>
+	
+	<!-- 根据学号查询该学生的所有转班申请 -->
+	<select id="queryChangeClassApplyByStuId" resultType="ChangeClassView">
+		select tcc.*,ts.stu_name,te1.te_name in_person,te2.te_name out_person from t_change_class tcc
+		left join t_student ts 
+		on ts.stu_id=tcc.stu_id
+		left join t_employee te1
+		on te1.te_id=tcc.in_check
+		left join t_employee te2
+		on te2.te_id=tcc.out_check
+		where tcc.stu_id=#{stu_id} 
+		order by tcc.tcc_id desc
+	</select>
+	
+	<!-- 根据登入用户查询转入到本班的审核 -->
+	<select id="queryChangeClassCheck" resultType="ChangeClassView">
+		select tcc.*,tc.tc_name out_classname,tcs.tc_name in_classname, ts.stu_name,te1.te_name out_person,te2.te_name in_person from t_change_class tcc
+		left join t_classes tc
+		on tc.tc_id=tcc.out_classid
+		left join t_classes tcs
+		on tcs.tc_id=tcc.in_classid
+		left join t_student ts
+		on ts.stu_id=tcc.stu_id
+		left join t_employee te1
+		on te1.te_id=tcc.out_check
+		left join t_employee te2
+		on te2.te_id=tcc.in_check
+		where tcc.in_classid in(select tc.tc_id from t_classes tc
+		where tc.te_id=#{te_id}) 
+		<if test="changeClassView!=null">
+			<if test="changeClassView.in_status!=null">
+				and tcc.in_status=#{changeClassView.in_status}
+			</if>
+		</if>
+		order by tcc.tcc_id desc
+	</select>
+	
+	<!-- 修改转入班级审核状态 -->
+	<update id="updateChangeClassInStatus">
+		update t_change_class set in_status=#{changeClassView.in_status},
+		<if test="#{changeClassView.in_reason}!=null">
+			in_reason=#{changeClassView.in_reason},
+		</if>
+		in_time=sysdate,in_check=#{changeClassView.in_check}
+		where tcc_id=#{changeClassView.tcc_id}
+	</update>
+	
+	<!-- 根据学生编号修改学生班级信息 -->
+	<update id="updateStudentClassInfoByStuId">
+		update t_student set class_id=#{changeClassView.in_classid}
+		where stu_id=#{changeClassView.stu_id}
+	</update>
+	
+	
+</mapper>

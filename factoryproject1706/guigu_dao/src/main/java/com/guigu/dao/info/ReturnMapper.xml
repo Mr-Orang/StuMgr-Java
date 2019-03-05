@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guigu.dao.info.ReturnMapper">
+	<select id="SelStucid" parameterType="String" resultType="com.guigu.domain.info.Student">
+		select stu.STU_ID stuid,stu.STU_CID stucid from
+		t_return ret,t_leave
+		lea,t_student stu
+		<where>
+		lea.LEAVE_ID=ret.LEAVE_ID
+		and
+		lea.STU_ID=stu.STU_ID
+			<if test="stuid !=''"> and stu.stu_id=#{stuid}</if>
+			<if test="stucid !=''"> and stu.stu_cid=#{stucid} </if>
+		</where>
+	</select> 
+	<!--申请复学 -->
+	<insert id="InsertReturn" parameterType="Returns">
+		insert into t_return
+		values
+		(return.nextval,'leave_id',sysdate,'return_time','',3,'','')
+	</insert>
+	<!--点击复学申请查看复学记录根据id查看 -->
+	<select id="SertReturn" parameterType="String"
+		resultType="com.guigu.common.info.ReturnVo">
+		select lea.LEAVE_ID,stu.STU_NAME,stu.STU_SEX,
+		lea.LEAVE_STARTTIME,lea.Leave_reason,lea.Leave_endtime
+		from t_student
+		stu, t_leave lea,t_return ret
+		where stu.STU_ID=lea.STU_ID
+		and
+		lea.LEAVE_ID=ret.LEAVE_ID
+		and lea.leave_id=#{value}
+	</select>
+	<!--根据id查看复学信息审批 (学生)-->
+	<select id="SReturnVo" parameterType="String"
+		resultType="com.guigu.common.info.ReturnVo">
+		select lea.LEAVE_ID,stu.STU_NAME,stu.STU_SEX,
+		lea.LEAVE_STARTTIME,lea.Leave_reason,lea.Leave_endtime,
+		ret.review_status,ret.Return_time
+		from t_student stu, t_leave
+		lea,t_return ret
+		where stu.STU_ID=lea.STU_ID
+		and
+		lea.LEAVE_ID=ret.LEAVE_ID
+		and lea.leave_id=#{value}
+	</select>
+	<!--根据id查看复学信息审批(老师) -->
+	<select id="SReturnVos" parameterType="String"
+		resultType="com.guigu.common.info.ReturnVo">
+		select lea.LEAVE_ID,stu.STU_NAME,stu.STU_SEX,
+		cla.TC_NAME,lev.TL_NAME,
+		lea.LEAVE_STARTTIME,lea.Leave_reason,lea.Leave_endtime,
+		ret.review_status,ret.Return_time
+		from 
+		t_student stu,
+		t_leave lea,
+		t_return ret,
+		t_classes cla,
+		t_level lev	
+		where stu.STU_ID=lea.STU_ID
+		and lev.TL_ID=cla.TL_ID
+		and lea.LEAVE_ID=ret.LEAVE_ID
+		and cla.TC_ID=stu.CLASS_ID
+		and lea.lEAVE_ID=#{value}
+	</select>
+</mapper>
